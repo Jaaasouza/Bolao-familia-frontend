@@ -6,7 +6,6 @@ import { API } from '../lib/api.js';
 import { normalizeMatches } from '../components/teams/teamStats.js';
 import { getPlayerToken } from '../auth/usePhoneAuth.js';
 import LiveMatch from '../components/LiveMatch.jsx';
-import ChatView from './ChatView.jsx';
 import { useLang } from '../i18n/LanguageContext.jsx';
 
 const LIVE = new Set(['IN_PLAY', 'PAUSED', 'LIVE']);
@@ -62,29 +61,24 @@ export default function LiveTab({ matches: initial = [] }) {
   const m = featured[Math.min(sel, featured.length - 1)] || null;
 
   return (
-    <>
-      <div className="card">
-        <style>{LT_CSS}</style>
+    <div className="card">
+      <style>{LT_CSS}</style>
 
-        {/* selector when several games are live at once */}
-        {live.length > 1 && (
-          <div className="lt-pick">
-            {live.map((g, i) => (
-              <button key={g.id ?? i} type="button"
-                className={`lt-chip${i === sel ? ' on' : ''}`} onClick={() => setSel(i)}>
-                {(g.home || 'TBD').slice(0, 3).toUpperCase()}–{(g.away || 'TBD').slice(0, 3).toUpperCase()}
-                {g.homeScore != null && <b> {g.homeScore}:{g.awayScore}</b>}
-              </button>
-            ))}
-          </div>
-        )}
+      {/* selector when several games are live at once */}
+      {live.length > 1 && (
+        <div className="lt-pick">
+          {live.map((g, i) => (
+            <button key={g.id ?? i} type="button"
+              className={`lt-chip${i === sel ? ' on' : ''}`} onClick={() => setSel(i)}>
+              {(g.home || 'TBD').slice(0, 3).toUpperCase()}–{(g.away || 'TBD').slice(0, 3).toUpperCase()}
+              {g.homeScore != null && <b> {g.homeScore}:{g.awayScore}</b>}
+            </button>
+          ))}
+        </div>
+      )}
 
-        {m ? <LiveMatch m={m} pred={myPicks[m.id] || null} /> : <p className="hint">{t.none}</p>}
-      </div>
-
-      {/* Pool chat — banter live during the game. Persists server-side. */}
-      <ChatView />
-    </>
+      {m ? <LiveMatch m={m} pred={myPicks[m.id] || null} /> : <p className="hint">{t.none}</p>}
+    </div>
   );
 }
 
