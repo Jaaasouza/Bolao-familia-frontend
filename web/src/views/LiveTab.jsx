@@ -14,7 +14,7 @@ const byDate = (a, b) => new Date(a.utcDate || 0) - new Date(b.utcDate || 0);
 
 const T = {
   en: { live: '🔴 LIVE', next: '⏭ Up next', latest: '✅ Latest result', none: 'No matches to show yet.' },
-  es: { live: '🔴 EN VIVO', next: '⏭ Próximo', latest: '✅ Último resultado', none: 'Aún no hay partidos.' },
+  pt: { live: '🔴 AO VIVO', next: '⏭ A seguir', latest: '✅ Último resultado', none: 'Ainda não há jogos para mostrar.' },
 };
 
 export default function LiveTab({ matches: initial = [] }) {

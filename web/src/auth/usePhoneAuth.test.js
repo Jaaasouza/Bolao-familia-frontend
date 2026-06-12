@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { normalizeUsPhone, TOKEN_KEY, PLAYER_KEY } from './usePhoneAuth.js';
+import { normalizeUsPhone, normalizePhone, TOKEN_KEY, PLAYER_KEY } from './usePhoneAuth.js';
 
 describe('normalizeUsPhone', () => {
   it('accepts a plain 10-digit string', () => {
@@ -59,6 +59,55 @@ describe('normalizeUsPhone', () => {
 
   it('accepts numeric (non-string) input', () => {
     expect(normalizeUsPhone(5551234567).digits).toBe('5551234567');
+  });
+});
+
+describe('normalizePhone (Brasil)', () => {
+  it('accepts an 11-digit mobile and prefixes the 55 country code', () => {
+    expect(normalizePhone('(11) 91234-5678', 'BR')).toEqual({
+      country: 'BR', national: '11912345678', digits: '5511912345678', dial: '55',
+      pretty: '(11) 91234-5678',
+    });
+  });
+
+  it('accepts a 10-digit landline', () => {
+    expect(normalizePhone('1131234567', 'BR')).toEqual({
+      country: 'BR', national: '1131234567', digits: '551131234567', dial: '55',
+      pretty: '(11) 3123-4567',
+    });
+  });
+
+  it('tolerates an included 55 country code', () => {
+    expect(normalizePhone('+55 (21) 99876-5432', 'BR').digits).toBe('5521998765432');
+    expect(normalizePhone('5521998765432', 'BR').national).toBe('21998765432');
+  });
+
+  it('defaults to Brazil when no country is given', () => {
+    expect(normalizePhone('11912345678').country).toBe('BR');
+  });
+
+  it('rejects invalid Brazilian lengths', () => {
+    expect(normalizePhone('123', 'BR')).toBeNull();
+    expect(normalizePhone('119123456', 'BR')).toBeNull(); // 9 digits
+    expect(normalizePhone('', 'BR')).toBeNull();
+    expect(normalizePhone(null, 'BR')).toBeNull();
+  });
+});
+
+describe('normalizePhone (USA)', () => {
+  it('keeps US numbers at 10 national digits', () => {
+    expect(normalizePhone('(415) 555-1234', 'US')).toEqual({
+      country: 'US', national: '4155551234', digits: '4155551234', dial: '1',
+      pretty: '(415) 555-1234',
+    });
+  });
+
+  it('strips a leading US country code', () => {
+    expect(normalizePhone('14155551234', 'US').digits).toBe('4155551234');
+  });
+
+  it('rejects non-10-digit US input', () => {
+    expect(normalizePhone('5551234', 'US')).toBeNull();
   });
 });
 

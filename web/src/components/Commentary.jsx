@@ -5,7 +5,7 @@ import { useLang } from '../i18n/LanguageContext.jsx';
 
 const T = {
   en: { title: '📻 Live commentary', more: 'Show all', less: 'Show less' },
-  es: { title: '📻 Narración en vivo', more: 'Ver todo', less: 'Ver menos' },
+  pt: { title: '📻 Narração ao vivo', more: 'Ver tudo', less: 'Ver menos' },
 };
 const PREVIEW = 4;
 

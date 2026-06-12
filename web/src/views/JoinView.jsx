@@ -6,6 +6,7 @@ import { TEAM_ABBR, FLAG_EMOJI, FLAGS, flagUrl } from '../data/teamMeta.js';
 import { STRIKERS } from '../data/strikers.js';
 import StrikerSticker from '../components/StrikerSticker.jsx';
 import { API, ApiError } from '../lib/api.js';
+import { normalizePhone, normalizeUsPhone, PHONE_COUNTRIES, DEFAULT_PHONE_COUNTRY } from '../auth/usePhoneAuth.js';
 
 // Re-export the canonical team-metadata tables (from src/data/teamMeta.js, which
 // ports the inline tables from the original HTML) so the unit test can import
@@ -79,13 +80,9 @@ export function buildPlayerPayload({ id, name, firsts = {}, seconds = {}, champi
 // ---------------------------------------------------------------------------
 // View
 // ---------------------------------------------------------------------------
-// US phone → { digits, pretty } or null. Mirrors the backend normalizer.
-export function normalizeUsPhone(input) {
-  let d = String(input || '').replace(/\D/g, '');
-  if (d.length === 11 && d.startsWith('1')) d = d.slice(1);
-  if (d.length !== 10) return null;
-  return { digits: d, pretty: `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` };
-}
+// Phone normalization (Brasil + USA) lives in usePhoneAuth.js. Re-exported here
+// so existing importers/tests keep resolving normalizeUsPhone from this module.
+export { normalizeUsPhone };
 
 // ms → "2d 04h 13m 09s" (or "0s" when non-positive).
 export function formatCountdown(ms) {
@@ -101,12 +98,13 @@ export function formatCountdown(ms) {
 
 export default function JoinView({ players = {}, onSaved, config = {}, apiGroups = {} }) {
   const { t, lang } = useLang();
-  const isEs = lang === 'es';
+  const isPt = lang !== 'en';
 
   // Use the real draw from synced fixtures when available, else the seed.
   const GROUPS = useMemo(() => resolveGroups(apiGroups).groups, [apiGroups]);
 
   const [name, setName] = useState('');
+  const [country, setCountry] = useState(DEFAULT_PHONE_COUNTRY);
   const [phone, setPhone] = useState('');
   const [firsts, setFirsts] = useState({});
   const [seconds, setSeconds] = useState({});
@@ -135,14 +133,16 @@ export default function JoinView({ players = {}, onSaved, config = {}, apiGroups
   const setFirst = useCallback((g, v) => setFirsts((p) => ({ ...p, [g]: v })), []);
   const setSecond = useCallback((g, v) => setSeconds((p) => ({ ...p, [g]: v })), []);
 
-  const phoneOk = normalizeUsPhone(phone) !== null;
+  const countryMeta = PHONE_COUNTRIES.find((c) => c.code === country) || PHONE_COUNTRIES[0];
+  const normPhone = normalizePhone(phone, country);
+  const phoneOk = normPhone !== null;
   const validationKey = validatePicks({ name, firsts, seconds, champion: championValue });
   const canSubmit = !locked && !saving && !registrationClosed && phoneOk && validationKey === null;
 
   async function submitPicks() {
     setFeedback(null);
     if (registrationClosed) {
-      setFeedback({ type: 'err', msg: isEs ? 'Las inscripciones están cerradas.' : 'Registration is closed.' });
+      setFeedback({ type: 'err', msg: isPt ? 'As inscrições estão encerradas.' : 'Registration is closed.' });
       return;
     }
     const errKey = validatePicks({ name, firsts, seconds, champion: championValue });
@@ -151,7 +151,7 @@ export default function JoinView({ players = {}, onSaved, config = {}, apiGroups
       return;
     }
     if (!phoneOk) {
-      setFeedback({ type: 'err', msg: isEs ? 'Ingresa un teléfono válido (EE. UU.).' : 'Enter a valid US phone number.' });
+      setFeedback({ type: 'err', msg: t('invalidPhone') });
       return;
     }
     // Reuse an existing player id (by name), like the existing-player lookup in the HTML.
@@ -175,7 +175,7 @@ export default function JoinView({ players = {}, onSaved, config = {}, apiGroups
     try {
       // Public self-registration — no admin token needed. Backend locks the
       // player and rejects overwriting a locked name (409).
-      const res = await API.register({ name: payload.name, phone, picks: payload.picks });
+      const res = await API.register({ name: payload.name, phone: normPhone.digits, picks: payload.picks });
       setLocked(true);
       setFeedback({ type: 'ok', msg: t('lockedIn') });
       if (onSaved) onSaved(payload, res);
@@ -188,11 +188,11 @@ export default function JoinView({ players = {}, onSaved, config = {}, apiGroups
     }
   }
 
-  const groupWord = isEs ? 'Grupo' : 'Group';
-  const firstLabel = isEs ? '1er lugar' : '1st place';
-  const secondLabel = isEs ? '2do lugar' : '2nd place';
-  const pickWinner = isEs ? '— elige ganador —' : '— pick winner —';
-  const pickRunner = isEs ? '— elige subcampeón —' : '— pick runner-up —';
+  const groupWord = isPt ? 'Grupo' : 'Group';
+  const firstLabel = isPt ? '1º lugar' : '1st place';
+  const secondLabel = isPt ? '2º lugar' : '2nd place';
+  const pickWinner = isPt ? '— escolha o 1º —' : '— pick winner —';
+  const pickRunner = isPt ? '— escolha o 2º —' : '— pick runner-up —';
 
   return (
     <div className="panel active" id="panel-join">
@@ -206,16 +206,16 @@ export default function JoinView({ players = {}, onSaved, config = {}, apiGroups
             <span>
               {registrationClosed ? (
                 <>
-                  <strong>{isEs ? 'Inscripciones cerradas' : 'Registration closed'}</strong>
+                  <strong>{isPt ? 'Inscrições encerradas' : 'Registration closed'}</strong>
                   {' — '}
-                  {isEs ? 'el torneo ya comenzó.' : 'the tournament has started.'}
+                  {isPt ? 'o torneio já começou.' : 'the tournament has started.'}
                 </>
               ) : (
                 <>
-                  {isEs ? 'Cierra en ' : 'Closes in '}
+                  {isPt ? 'Fecha em ' : 'Closes in '}
                   <strong>{formatCountdown(deadlineTs - now)}</strong>
                   {' — '}
-                  {new Date(deadlineTs).toLocaleString(isEs ? 'es' : 'en', {
+                  {new Date(deadlineTs).toLocaleString(isPt ? 'pt-BR' : 'en', {
                     day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
                   })}
                 </>
@@ -248,21 +248,36 @@ export default function JoinView({ players = {}, onSaved, config = {}, apiGroups
         </div>
 
         <div className="field">
-          <label>{isEs ? 'Teléfono (EE. UU.)' : 'Phone (US)'}</label>
-          <input
-            type="tel"
-            id="playerPhone"
-            inputMode="tel"
-            placeholder="(415) 555-1234"
-            maxLength={20}
-            value={phone}
-            disabled={locked || registrationClosed}
-            onChange={(e) => setPhone(e.target.value)}
-            onBlur={() => {
-              const n = normalizeUsPhone(phone);
-              if (n) setPhone(n.pretty);
-            }}
-          />
+          <label>{t('yourPhone')}</label>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <select
+              id="phoneCountry"
+              style={{ width: 'auto', flex: '0 0 auto' }}
+              value={country}
+              disabled={locked || registrationClosed}
+              onChange={(e) => setCountry(e.target.value)}
+              aria-label="País / Country"
+            >
+              {PHONE_COUNTRIES.map((c) => (
+                <option key={c.code} value={c.code}>{c.flag} +{c.dial}</option>
+              ))}
+            </select>
+            <input
+              type="tel"
+              id="playerPhone"
+              inputMode="tel"
+              placeholder={countryMeta.example}
+              maxLength={20}
+              value={phone}
+              disabled={locked || registrationClosed}
+              onChange={(e) => setPhone(e.target.value)}
+              onBlur={() => {
+                const n = normalizePhone(phone, country);
+                if (n) setPhone(n.pretty);
+              }}
+            />
+          </div>
+          <p className="hint" style={{ marginTop: 6 }}>{t('phoneHint')}</p>
         </div>
 
         <div className="grid-picks" id="picksGrid">
@@ -399,10 +414,10 @@ export default function JoinView({ players = {}, onSaved, config = {}, apiGroups
         {/* GOLDEN BOOT PICK */}
         <div className="golden-boot-card">
           <div className="gb-icon" aria-hidden="true">👟</div>
-          <h3>{isEs ? 'Bota de Oro' : 'Golden Boot'}</h3>
+          <h3>{isPt ? 'Chuteira de Ouro' : 'Golden Boot'}</h3>
           <p className="gb-hint">
-            {isEs
-              ? 'Elige al goleador del torneo. +30 si aciertas · +10 si queda en el top 3.'
+            {isPt
+              ? 'Escolha o artilheiro da Copa. +30 se acertar · +10 se ficar no top 3.'
               : 'Pick the tournament top scorer. +30 if exact · +10 if top 3.'}
           </p>
           <select
@@ -412,7 +427,7 @@ export default function JoinView({ players = {}, onSaved, config = {}, apiGroups
             onChange={(e) => setTopScorer(e.target.value)}
             style={{ fontSize: 15, padding: 13 }}
           >
-            <option value="">{isEs ? '— elige goleador (opcional) —' : '— pick top scorer (optional) —'}</option>
+            <option value="">{isPt ? '— escolha o artilheiro (opcional) —' : '— pick top scorer (optional) —'}</option>
             {STRIKERS.map((s) => (
               <option key={s.name} value={s.name}>
                 {(FLAG_EMOJI[s.team] || '')} {s.name} · {s.team}
@@ -467,7 +482,7 @@ export default function JoinView({ players = {}, onSaved, config = {}, apiGroups
         >
           <span>
             {registrationClosed
-              ? (isEs ? '🔒 Inscripciones cerradas' : '🔒 Registration closed')
+              ? (isPt ? '🔒 Inscrições encerradas' : '🔒 Registration closed')
               : locked
                 ? t('lockBtnLocked')
                 : `🔒 ${t('lockBtn')}`}

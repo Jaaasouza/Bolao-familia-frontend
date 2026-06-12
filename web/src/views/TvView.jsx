@@ -16,7 +16,7 @@ const DONE = new Set(['FINISHED']);
 
 const TV_TXT = {
   en: { live: 'LIVE NOW', next: 'COMING UP', recent: 'LATEST RESULTS', rank: 'LEADERBOARD', pts: 'pts', join: 'Scan to join', noMatches: 'No matches scheduled yet', empty: 'No scores yet' },
-  es: { live: 'EN VIVO', next: 'PRÓXIMOS', recent: 'ÚLTIMOS RESULTADOS', rank: 'CLASIFICACIÓN', pts: 'pts', join: 'Escanea para participar', noMatches: 'Aún no hay partidos', empty: 'Aún no hay puntos' },
+  pt: { live: 'AO VIVO', next: 'A SEGUIR', recent: 'ÚLTIMOS RESULTADOS', rank: 'CLASSIFICAÇÃO', pts: 'pts', join: 'Escaneie para entrar', noMatches: 'Ainda não há jogos marcados', empty: 'Ainda não há pontos' },
 };
 
 const MEDALS = ['🥇', '🥈', '🥉'];
@@ -104,7 +104,7 @@ export default function TvView() {
   // The lead match always gets the full pitch view (live, else next, else last).
   const lead = live[0] || next[0] || recent[0] || null;
 
-  const clock = now.toLocaleTimeString(lang === 'es' ? 'es' : 'en', { hour: '2-digit', minute: '2-digit' });
+  const clock = now.toLocaleTimeString(lang === 'pt' ? 'pt-BR' : 'en', { hour: '2-digit', minute: '2-digit' });
 
   return (
     <div className="tv">

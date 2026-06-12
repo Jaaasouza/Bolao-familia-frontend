@@ -17,16 +17,16 @@ const DONE = new Set(['FINISHED']);
 
 const STAGE_LABEL = {
   en: { group: 'Group Stage', r32: 'Round of 32', r16: 'Round of 16', qf: 'Quarter-final', sf: 'Semi-final', final: 'Final' },
-  es: { group: 'Fase de Grupos', r32: 'Ronda de 32', r16: 'Octavos', qf: 'Cuartos', sf: 'Semifinal', final: 'Final' },
+  pt: { group: 'Fase de Grupos', r32: 'Fase de 32', r16: 'Oitavas', qf: 'Quartas', sf: 'Semifinal', final: 'Final' },
 };
 const STAMP = {
   en: { live: 'LIVE', ft: 'FT', ht: 'HT', vs: 'VS', group: 'Group' },
-  es: { live: 'EN VIVO', ft: 'FIN', ht: 'MT', vs: 'VS', group: 'Grupo' },
+  pt: { live: 'AO VIVO', ft: 'FIM', ht: 'INT', vs: 'VS', group: 'Grupo' },
 };
 
 export default function MatchCard({ m, centerOverride = null, tag = null }) {
   const { lang } = useLang();
-  const loc = lang === 'es' ? 'es' : 'en';
+  const loc = lang === 'pt' ? 'pt' : 'en';
   const S = STAMP[loc];
   const stages = STAGE_LABEL[loc];
 

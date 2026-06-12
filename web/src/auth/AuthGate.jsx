@@ -1,13 +1,14 @@
 // Entry gate. Two steps:
-//   1) LANGUAGE — pick English or Español (only the first time; the choice is
+//   1) LANGUAGE — pick Português or English (only the first time; the choice is
 //      persisted, so returning visitors skip straight to step 2). From here on
 //      the whole app — including push notifications — is in that language.
-//   2) PHONE — known phone goes straight in; an unknown phone reveals the name
-//      fields (First + Last) and registers.
+//   2) PHONE — pick the country (Brasil / USA), then enter the number. A known
+//      phone goes straight in; an unknown phone reveals the name fields (First +
+//      Last) and registers.
 // Wraps the app so nothing shows until the player is identified.
 import { useState } from 'react';
 import { usePlayerAuth } from './PlayerAuthContext.jsx';
-import { normalizeUsPhone } from './usePhoneAuth.js';
+import { normalizePhone, PHONE_COUNTRIES, DEFAULT_PHONE_COUNTRY } from './usePhoneAuth.js';
 import { useLang } from '../i18n/LanguageContext.jsx';
 import { Logo } from '../components/Logo.jsx';
 import { APP_NAME } from '../config/app.js';
@@ -48,6 +49,7 @@ export default function AuthGate({ children }) {
   const { t, setLang } = useLang();
   // Start on the language step unless the visitor already picked one before.
   const [step, setStep] = useState(() => (langAlreadyChosen() ? 'phone' : 'lang'));
+  const [country, setCountry] = useState(DEFAULT_PHONE_COUNTRY);
   const [phone, setPhone] = useState('');
   const [first, setFirst] = useState('');
   const [last, setLast] = useState('');
@@ -57,7 +59,8 @@ export default function AuthGate({ children }) {
 
   if (token) return children;
 
-  const norm = normalizeUsPhone(phone);
+  const countryMeta = PHONE_COUNTRIES.find((c) => c.code === country) || PHONE_COUNTRIES[0];
+  const norm = normalizePhone(phone, country);
   const fullName = `${first.trim()} ${last.trim()}`.trim();
 
   const chooseLang = (next) => {
@@ -100,11 +103,11 @@ export default function AuthGate({ children }) {
           <>
             <h2 style={{ marginTop: 0, textAlign: 'center' }}>{t('gateLangTitle')}</h2>
             <div className="gate-langs">
+              <button type="button" className="gate-lang-btn" onClick={() => chooseLang('pt')}>
+                🇧🇷 {t('gatePortuguese')}
+              </button>
               <button type="button" className="gate-lang-btn" onClick={() => chooseLang('en')}>
                 🇺🇸 {t('gateEnglish')}
-              </button>
-              <button type="button" className="gate-lang-btn" onClick={() => chooseLang('es')}>
-                🇲🇽 {t('gateSpanish')}
               </button>
             </div>
             <p className="gate-hint">{t('gateLangHint')}</p>
@@ -116,12 +119,24 @@ export default function AuthGate({ children }) {
             <form className="gate-form" onSubmit={submit} noValidate>
               <div>
                 <label>{t('gatePhoneLabel')}</label>
-                <input
-                  className="gate-input" type="tel" inputMode="tel" autoComplete="tel"
-                  placeholder="(555) 123-4567" value={phone}
-                  onChange={(e) => { setPhone(e.target.value); if (err) setErr(''); }}
-                  disabled={busy}
-                />
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <select
+                    className="gate-input" style={{ width: 'auto', flex: '0 0 auto' }}
+                    value={country}
+                    onChange={(e) => { setCountry(e.target.value); if (err) setErr(''); }}
+                    disabled={busy} aria-label="País / Country"
+                  >
+                    {PHONE_COUNTRIES.map((c) => (
+                      <option key={c.code} value={c.code}>{c.flag} +{c.dial}</option>
+                    ))}
+                  </select>
+                  <input
+                    className="gate-input" type="tel" inputMode="tel" autoComplete="tel"
+                    placeholder={countryMeta.example} value={phone}
+                    onChange={(e) => { setPhone(e.target.value); if (err) setErr(''); }}
+                    disabled={busy}
+                  />
+                </div>
                 <div className="gate-pretty">{norm ? norm.pretty : ' '}</div>
               </div>
 
