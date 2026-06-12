@@ -26,10 +26,10 @@ export function mergeMessages(existing, incoming) {
 }
 
 const CHAT_CSS = `
-.chat-wrap{display:flex;flex-direction:column;height:min(70vh,560px)}
-.chat-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 2px}
+.chat-wrap{display:flex;flex-direction:column;height:clamp(200px,38vh,340px)}
+.chat-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:7px;padding:4px 2px}
 .chat-empty{margin:auto;color:rgba(255,255,255,.5);font-family:'JetBrains Mono',monospace;font-size:13px;text-align:center}
-.chat-msg{max-width:82%;padding:8px 12px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);align-self:flex-start}
+.chat-msg{max-width:84%;padding:6px 10px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);align-self:flex-start}
 .chat-msg.mine{align-self:flex-end;background:linear-gradient(135deg,rgba(255,214,10,.16),rgba(251,86,7,.10));border-color:rgba(255,214,10,.3)}
 .chat-meta{display:flex;gap:8px;align-items:baseline;margin-bottom:2px}
 .chat-name{font-family:'Archivo Black',sans-serif;font-size:12px;color:var(--gold,#ffd60a)}
@@ -37,9 +37,9 @@ const CHAT_CSS = `
 .chat-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.4)}
 .chat-del{margin-left:auto;background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:12px;line-height:1}
 .chat-del:hover{color:#ff6b6b}
-.chat-body{font-size:15px;line-height:1.35;word-wrap:break-word;white-space:pre-wrap}
-.chat-form{display:flex;gap:8px;margin-top:10px}
-.chat-input{flex:1;box-sizing:border-box;font-size:16px;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff}
+.chat-body{font-size:14px;line-height:1.3;word-wrap:break-word;white-space:pre-wrap}
+.chat-form{display:flex;gap:8px;margin-top:8px}
+.chat-input{flex:1;box-sizing:border-box;font-size:16px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff}
 .chat-input:focus{outline:none;border-color:var(--gold,#ffd60a)}
 .chat-err{color:#ff6b6b;font-size:13px;font-family:'JetBrains Mono',monospace;margin-top:6px}
 `;
@@ -57,31 +57,32 @@ export default function ChatView() {
   const listRef = useRef(null);
   const atBottomRef = useRef(true);
 
-  const lastTs = messages.length ? messages[messages.length - 1].created_at : null;
-
-  const load = useCallback(async (since) => {
+  // Full refresh each poll (cheap — ≤100 rows). Replacing the list means a
+  // server-side wipe (the chat clears when a game ends) and admin deletes reflect
+  // automatically, with no manual reload.
+  const load = useCallback(async () => {
     if (!token) return;
     try {
-      const res = await API.chatList(token, since);
-      if (res && Array.isArray(res.messages) && res.messages.length) {
-        setMessages((cur) => mergeMessages(cur, res.messages));
+      const res = await API.chatList(token);
+      if (res && Array.isArray(res.messages)) {
+        setMessages((cur) => {
+          const next = res.messages;
+          const unchanged = next.length === cur.length
+            && next[next.length - 1]?.id === cur[cur.length - 1]?.id
+            && next[0]?.id === cur[0]?.id;
+          return unchanged ? cur : next;
+        });
       }
     } catch {
       /* transient — next poll retries */
     }
   }, [token]);
 
-  // Initial load + polling (incremental via the newest timestamp we hold).
+  // Initial load + polling.
   useEffect(() => {
     if (!token) return undefined;
-    load(null);
-    const id = setInterval(() => {
-      setMessages((cur) => {
-        const since = cur.length ? cur[cur.length - 1].created_at : null;
-        load(since);
-        return cur;
-      });
-    }, POLL_MS);
+    load();
+    const id = setInterval(load, POLL_MS);
     return () => clearInterval(id);
   }, [token, load]);
 
