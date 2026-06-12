@@ -58,9 +58,10 @@ export default function PredictTab({ matches, standings = {} }) {
     return res;
   }, []);
 
-  // onSubmit(phase, allPicks) → one-shot submit of a whole phase (irreversible).
-  const onSubmit = useCallback(async (phase, allPicks) => {
-    const res = await API.submitPhase(phase, allPicks, token);
+  // onSubmit(phase, picks) → save the given match picks. Per-match rolling: any
+  // subset of not-yet-started matches, editable until each kicks off.
+  const onSubmit = useCallback(async (phase, picks) => {
+    const res = await API.submitPhase(phase, picks, token);
     await loadPicks(token);
     return res;
   }, [token, loadPicks]);

@@ -15,35 +15,31 @@ const PHASE_NAME = {
 const TXT = {
   en: {
     title: 'Predict Scores',
-    hint: 'Predict the exact score of every match in this phase, then lock them in one shot. Each round opens for predictions as the previous one finishes.',
+    hint: 'Predict the score of any match that hasn’t kicked off yet — pick whenever you like and edit until the whistle. Matches that already started are locked, and finished ones drop off.',
     legExact: 'pts exact score', legResult: 'pt right result (winner / draw)', legZero: 'otherwise',
     legBoxes: 'middle box = draw (X-X) · sides = a winner',
     group: 'Group',
     waiting: (n) => `Waiting for ${n} match${n > 1 ? 'es' : ''} — the teams are decided once the previous round finishes. You can predict here as soon as they appear.`,
-    progress: (d, t) => `${d}/${t} matches predicted`,
+    progress: (d, t) => `${d}/${t} open matches predicted`,
     saving: 'Saving…', waitTeams: 'Waiting for the teams…',
-    lockBtn: (p) => `🔒 Lock in my ${p} picks (final)`,
-    fillAll: (t) => `Fill all ${t} matches to finish`,
-    lockedMsg: (p) => `🔒 Your ${p} picks are locked in — they can’t be changed.`,
-    startedMsg: '⏱ This phase has already started — predictions are closed.',
-    confirm: (p) => `Lock in your ${p} picks? This is final — they cannot be changed.`,
-    okLocked: '🔒 Locked in! Good luck.', okSubmit: '✓ Submitted!', failSubmit: 'Submit failed',
+    saveBtn: (n) => `💾 Save my picks${n ? ` (${n})` : ''}`,
+    savedMsg: '✓ Picks saved!',
+    allStarted: 'Every match in this phase has already started.',
+    failSubmit: 'Save failed',
   },
   pt: {
     title: 'Palpite os Placares',
-    hint: 'Palpite o placar exato de cada jogo desta fase e trave todos de uma vez. Cada fase abre para palpites assim que a anterior termina.',
+    hint: 'Palpite o placar de qualquer jogo que ainda não começou — faça quando quiser e edite até a bola rolar. Jogos que já começaram ficam travados, e os que já acabaram saem da lista.',
     legExact: 'pts placar exato', legResult: 'pt resultado certo (vencedor / empate)', legZero: 'caso contrário',
     legBoxes: 'caixa central = empate (X-X) · laterais = um vencedor',
     group: 'Grupo',
     waiting: (n) => `Aguardando ${n} jogo${n > 1 ? 's' : ''} — os times são definidos quando a fase anterior termina. Você poderá palpitar aqui assim que aparecerem.`,
-    progress: (d, t) => `${d}/${t} jogos palpitados`,
+    progress: (d, t) => `${d}/${t} jogos abertos palpitados`,
     saving: 'Salvando…', waitTeams: 'Aguardando os times…',
-    lockBtn: (p) => `🔒 Travar meus palpites da ${p} (final)`,
-    fillAll: (t) => `Preencha os ${t} jogos para concluir`,
-    lockedMsg: (p) => `🔒 Seus palpites da ${p} estão travados — não podem ser alterados.`,
-    startedMsg: '⏱ Esta fase já começou — os palpites estão encerrados.',
-    confirm: (p) => `Travar seus palpites da ${p}? É definitivo — não podem ser alterados.`,
-    okLocked: '🔒 Travado! Boa sorte.', okSubmit: '✓ Enviado!', failSubmit: 'Falha ao enviar',
+    saveBtn: (n) => `💾 Salvar meus palpites${n ? ` (${n})` : ''}`,
+    savedMsg: '✓ Palpites salvos!',
+    allStarted: 'Todos os jogos desta fase já começaram.',
+    failSubmit: 'Falha ao salvar',
   },
 };
 
@@ -203,8 +199,12 @@ export default function PredictView({ matches = [], myPicks = {}, lockedPhases =
     return out;
   }, [presentPhases, byPhase, lockedPhases]);
 
+  // Per-match game: focus the earliest phase that still has any open (not yet
+  // kicked-off) match, so the remaining games are always front and centre.
   const activePhase = useMemo(
-    () => selectActivePhase(presentPhases, infoByPhase),
+    () => presentPhases.find((p) => infoByPhase[p] && infoByPhase[p].anyOpen)
+      || presentPhases[presentPhases.length - 1]
+      || null,
     [presentPhases, infoByPhase],
   );
 
@@ -233,24 +233,23 @@ export default function PredictView({ matches = [], myPicks = {}, lockedPhases =
   );
   const filledCount = fillable.filter((m) => valueFor(m.id)).length;
   const total = fillable.length;
-  const allFilled = total > 0 && filledCount === total;
 
-  // Submittable only while the whole phase is open (none started), every team is
-  // known, and all are filled — matching the backend's one-shot rule.
-  const canSubmit = !phaseLocked && info.fullyOpen && info.allReady && allFilled;
+  // Submittable whenever at least one open match has a score filled in. Picks are
+  // saved per match and stay editable until each match kicks off.
+  const canSubmit = filledCount > 0;
 
   const finish = async () => {
     setFeedback(null);
-    // eslint-disable-next-line no-alert
-    if (!window.confirm(T.confirm(pn[phase] || phase))) return;
-    const picks = phaseMatches
+    // Submit only the open, ready matches that have a score — no confirmation,
+    // since nothing is locked permanently (you can edit until kickoff).
+    const picks = fillable
       .map((m) => { const v = valueFor(m.id); return v ? { matchId: Number(m.id), home: Number(v.home), away: Number(v.away) } : null; })
       .filter(Boolean);
+    if (!picks.length) return;
     setSaving(true);
     try {
-      const res = onSubmit ? await onSubmit(phase, picks) : null;
-      if (res && res.locked) setFeedback({ type: 'ok', msg: T.okLocked });
-      else setFeedback({ type: 'ok', msg: T.okSubmit });
+      if (onSubmit) await onSubmit(phase, picks);
+      setFeedback({ type: 'ok', msg: T.savedMsg });
     } catch (e) {
       setFeedback({ type: 'err', msg: (e && e.message) || T.failSubmit });
     } finally {
@@ -359,14 +358,10 @@ export default function PredictView({ matches = [], myPicks = {}, lockedPhases =
       )}
 
       <div className="pv-finish">
-        {phaseLocked ? (
-          <div className="api-status connected" style={{ textAlign: 'center' }}>
-            {T.lockedMsg(pn[phase] || phase)}
-          </div>
-        ) : info.started ? (
-          <div className="api-status error" style={{ textAlign: 'center' }}>
-            {T.startedMsg}
-          </div>
+        {total === 0 ? (
+          notReadyCount > 0 ? null : (
+            <div className="api-status" style={{ textAlign: 'center' }}>{T.allStarted}</div>
+          )
         ) : (
           <>
             <div className="pv-progress">{T.progress(filledCount, total)}</div>
@@ -376,10 +371,7 @@ export default function PredictView({ matches = [], myPicks = {}, lockedPhases =
               </div>
             )}
             <button className="primary" disabled={!canSubmit || saving} onClick={finish}>
-              {saving ? T.saving
-                : !info.allReady ? T.waitTeams
-                  : allFilled ? T.lockBtn(pn[phase] || phase)
-                    : T.fillAll(total)}
+              {saving ? T.saving : T.saveBtn(filledCount)}
             </button>
           </>
         )}
