@@ -1,0 +1,729 @@
+:root{
+  /* USAM 2026 palette — bold, festive, inspired by host nations */
+  --mexico-red:#e63946;     /* Mexico red */
+  --mexico-green:#06a77d;   /* Mexico green */
+  --usa-blue:#1d3557;       /* USA navy */
+  --usa-bright:#3a86ff;     /* USA bright blue */
+  --canada-red:#d62828;     /* Canada red */
+  --gold:#ffd60a;           /* Trophy gold */
+  --hot-pink:#ff006e;       /* Festival pink */
+  --orange:#fb5607;         /* Sunset orange */
+  --lime:#8ac926;           /* Vivid lime */
+  --cream:#fff8e7;
+  --ink:#0a1733;
+  --dark:#0a1733;           /* Deep navy blue */
+  --white:#ffffff;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:#0a1733 !important}
+body{background:#0a1733 !important;color:var(--white);
+  font-family:'Space Grotesk',sans-serif;min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ====== CLEAN BACKGROUND ====== */
+.grain{display:none}
+
+.wrap{max-width:1280px;margin:0 auto;padding:24px 20px 80px;position:relative;z-index:2}
+@media(max-width:520px){.wrap{padding:16px 14px 60px}}
+
+/* ====== HEADER WITH BIG BRANDING ====== */
+header{
+  position:relative;margin-bottom:36px;padding:32px 0 28px;
+  border-bottom:3px solid transparent;
+  border-image:linear-gradient(90deg, var(--hot-pink), var(--gold), var(--mexico-green), var(--usa-bright)) 1;
+}
+.brand-wrap{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.brand{position:relative}
+.brand-lockup{display:flex;align-items:center;gap:14px}
+.brand-lockup svg{flex:none;filter:drop-shadow(0 4px 12px rgba(0,0,0,.35))}
+@media(max-width:520px){.brand-lockup{gap:10px}.brand-lockup svg{width:42px;height:42px}}
+.brand-tag{
+  display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;
+  letter-spacing:.25em;text-transform:uppercase;
+  background:var(--gold);color:var(--ink);padding:4px 12px;border-radius:2px;
+  margin-bottom:14px;font-weight:800;
+}
+
+.title{
+  font-family:'Anton',sans-serif;
+  font-size:clamp(56px,11vw,128px);
+  line-height:.85;letter-spacing:-.01em;
+  text-transform:uppercase;
+  color:var(--white);
+}
+
+.title .line2{
+  display:block;
+  background:linear-gradient(90deg, var(--gold), var(--orange));
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  font-size:.5em;
+  letter-spacing:.05em;
+  margin-top:-.05em;
+}
+
+.subtitle{
+  margin-top:14px;font-family:'JetBrains Mono',monospace;
+  font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(255,255,255,.6);
+}
+.subtitle .dot{color:var(--gold);margin:0 8px}
+
+.host-flags{
+  display:flex;gap:8px;align-items:center;
+  font-family:'Archivo Black',sans-serif;font-size:11px;letter-spacing:.1em;
+}
+.flag-pill{
+  padding:6px 14px;border-radius:30px;text-transform:uppercase;
+  transform:rotate(-2deg);transition:transform .2s;
+}
+.flag-pill:nth-child(2){transform:rotate(1deg)}
+.flag-pill:nth-child(3){transform:rotate(-1deg)}
+.flag-pill:hover{transform:rotate(0) scale(1.1)}
+.flag-pill.usa{background:var(--usa-bright);color:var(--white)}
+.flag-pill.can{background:var(--canada-red);color:var(--white)}
+.flag-pill.mex{background:var(--mexico-green);color:var(--white)}
+
+.live{display:inline-flex;align-items:center;gap:8px;margin-top:8px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--lime);letter-spacing:.15em;text-transform:uppercase;font-weight:700;}
+
+/* Language switcher */
+.lang-switch{display:inline-flex;gap:0;border:1px solid rgba(255,255,255,.2);
+  border-radius:30px;padding:3px;background:rgba(255,255,255,.04);margin-top:8px}
+.lang-btn{background:none;border:none;padding:6px 14px;border-radius:20px;
+  font-family:'Archivo Black',sans-serif;font-size:11px;letter-spacing:.1em;
+  color:rgba(255,255,255,.6);cursor:pointer;transition:all .2s}
+.lang-btn.active{background:linear-gradient(135deg, var(--gold), var(--orange));color:var(--ink)}
+.lang-btn:hover:not(.active){color:var(--white)}
+.live::before{content:'';width:10px;height:10px;border-radius:50%;background:var(--lime);
+  box-shadow:0 0 14px var(--lime);animation:pulse 1.2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+
+/* ====== TABS ====== */
+.tabs{display:flex;gap:8px;margin-bottom:32px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  background:rgba(255,255,255,.04);
+  border:2px solid rgba(255,255,255,.08);
+  color:rgba(255,255,255,.7);
+  font-family:'Archivo Black',sans-serif;font-size:12px;
+  letter-spacing:.08em;text-transform:uppercase;
+  padding:12px 18px;border-radius:30px;cursor:pointer;white-space:nowrap;
+  transition:all .25s cubic-bezier(.34,1.56,.64,1);
+  position:relative;overflow:hidden;
+}
+.tab:hover{color:var(--white);border-color:var(--gold);transform:translateY(-2px)}
+.tab.active{
+  background:linear-gradient(135deg, var(--hot-pink), var(--orange));
+  color:var(--white);border-color:transparent;
+  box-shadow:0 8px 24px rgba(255,0,110,.4);
+}
+.tab.tv-tab.active{background:linear-gradient(135deg, var(--gold), var(--orange));color:var(--ink);box-shadow:0 8px 24px rgba(255,214,10,.4)}
+.tab.tv-tab{background:linear-gradient(135deg, rgba(255,214,10,.15), rgba(251,86,7,.15));color:var(--gold);border-color:var(--gold)}
+
+/* FLOATING ACTION BUTTON (mobile menu) */
+.fab-menu{
+  display:none;
+  position:fixed;bottom:20px;right:20px;
+  width:60px;height:60px;border-radius:50%;
+  background:linear-gradient(135deg, var(--usa-bright), #5a9eff);
+  border:none;color:var(--white);cursor:pointer;
+  box-shadow:0 8px 24px rgba(58,134,255,.5), 0 0 0 1px rgba(255,255,255,.1);
+  z-index:900;
+  align-items:center;justify-content:center;
+  transition:all .25s cubic-bezier(.34,1.56,.64,1);
+}
+.fab-menu:active{transform:scale(.92)}
+.fab-menu:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(58,134,255,.6)}
+.fab-menu svg{width:26px;height:26px;transition:transform .3s}
+.fab-menu.menu-open svg{transform:rotate(90deg)}
+
+.menu-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  z-index:1500;opacity:0;transition:opacity .25s;
+}
+.menu-overlay.active{display:block;opacity:1}
+.menu-drawer{
+  position:fixed;top:0;right:-340px;bottom:0;width:300px;max-width:85vw;
+  background:linear-gradient(180deg, #0d1b3a, #0a1733);
+  border-left:1px solid rgba(255,255,255,.1);
+  z-index:1600;padding:20px 16px;
+  transition:right .3s cubic-bezier(.34,1.56,.64,1);
+  overflow-y:auto;display:flex;flex-direction:column;
+}
+.menu-drawer.active{right:0}
+.menu-drawer-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-bottom:16px;margin-bottom:16px;
+  border-bottom:1px solid rgba(255,255,255,.1);
+}
+.menu-drawer-header .title{
+  font-family:'Anton',sans-serif;font-size:24px;letter-spacing:.04em;
+  text-transform:uppercase;line-height:1;
+  background:linear-gradient(135deg, var(--gold), var(--orange));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.menu-drawer-close{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  color:var(--white);width:36px;height:36px;border-radius:50%;
+  cursor:pointer;font-size:18px;
+  display:flex;align-items:center;justify-content:center;
+}
+.menu-drawer-tab{
+  display:flex;align-items:center;gap:14px;width:100%;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  color:rgba(255,255,255,.85);text-align:left;
+  padding:14px 18px;margin-bottom:8px;border-radius:14px;cursor:pointer;
+  font-family:'Archivo Black',sans-serif;font-size:14px;letter-spacing:.06em;
+  text-transform:uppercase;transition:all .2s;
+}
+.menu-drawer-tab:active{transform:scale(.98)}
+.menu-drawer-tab .icon{font-size:22px;line-height:1;width:28px;text-align:center}
+.menu-drawer-tab.active{
+  background:linear-gradient(135deg, var(--hot-pink), var(--orange));
+  color:var(--white);border-color:transparent;
+  box-shadow:0 4px 14px rgba(255,0,110,.3);
+}
+.menu-drawer-tab.tv-item{
+  background:linear-gradient(135deg, rgba(255,214,10,.12), rgba(251,86,7,.08));
+  border-color:var(--gold);color:var(--gold);
+}
+.menu-drawer-tab.tv-item.active{
+  background:linear-gradient(135deg, var(--gold), var(--orange));color:var(--ink);
+}
+
+/* Mobile: show FAB, hide top tabs */
+@media(max-width:768px){
+  .tabs{display:none}
+  .fab-menu{display:flex}
+}
+
+.panel{display:none;animation:fadeUp .5s cubic-bezier(.16,1,.3,1)}
+.panel.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+/* ====== CARDS ====== */
+.card{
+  background:linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:20px;padding:28px;margin-bottom:20px;
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg, var(--hot-pink), var(--gold), var(--mexico-green), var(--usa-bright));
+  opacity:.8;
+}
+.card h2{
+  font-family:'Anton',sans-serif;font-size:36px;letter-spacing:.02em;
+  margin-bottom:6px;text-transform:uppercase;line-height:1;
+}
+.card .hint{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.5);
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:24px;}
+
+/* Mobile drawer title shrink */
+@media(max-width:520px){
+  .menu-drawer .title{font-size:20px}
+}
+
+/* ── Join form: pick grid + dark native controls ─────────────────────────────
+   Native <input>/<select> otherwise fall back to the OS default (white on iOS).
+   These give them the dark theme look and align the medal labels. */
+.grid-picks{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:14px;
+  margin-top:8px;
+}
+.pick-card{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:16px;
+  padding:16px;
+}
+.pick-card.complete{
+  border-color:var(--lime,#8ac926);
+  background:rgba(138,201,38,.06);
+}
+.pick-card .group-title{
+  font-family:'Archivo Black',sans-serif;
+  font-size:13px;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--white,#fff);margin-bottom:12px;display:flex;align-items:center;gap:8px;
+}
+.pick-card .group-title .gl{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border-radius:8px;
+  background:linear-gradient(135deg,var(--gold,#ffd60a),var(--orange,#fb5607));
+  color:#0a1733;font-size:13px;
+}
+.pick-slot{margin-bottom:10px}
+.pick-slot:last-child{margin-bottom:0}
+.pick-slot label{
+  display:flex;align-items:center;gap:6px;
+  font-size:12px;color:var(--muted);margin-bottom:6px;
+}
+
+/* Dark form controls (shared) */
+.field input,
+.field select,
+.pick-slot select,
+select#championPick,
+#playerName{
+  width:100%;
+  background:rgba(255,255,255,.05);
+  color:var(--white,#fff);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:12px;
+  padding:12px 38px 12px 14px;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:14px;line-height:1.2;
+  text-align:left;text-align-last:left;
+  appearance:none;-webkit-appearance:none;-moz-appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='%23ffd60a' d='M1 1l5 5 5-5'/></svg>");
+  background-repeat:no-repeat;background-position:right 14px center;
+  transition:border-color .2s, background-color .2s;
+}
+.field input{padding-right:14px;background-image:none}
+.field input::placeholder{color:rgba(255,255,255,.4)}
+.field input:focus,
+.field select:focus,
+.pick-slot select:focus,
+select#championPick:focus,
+#playerName:focus{
+  outline:none;border-color:var(--gold,#ffd60a);background-color:rgba(255,214,10,.06);
+}
+/* Dropdown list options use OS colors — force readable dark-on-light */
+.field select option,
+.pick-slot select option,
+select#championPick option{color:#0a1733;background:#fff}
+.field select:disabled,
+.pick-slot select:disabled,
+select#championPick:disabled,
+#playerName:disabled{opacity:.55;cursor:not-allowed}
+
+/* ── Responsive typography polish (front-end pass) ───────────────────────────
+   The ported header/title sizes were fixed px (too large on phones). Scale them
+   fluidly with clamp() and tidy the join heading + its inline "picks" badge. */
+.wrap{padding:20px 16px 80px}
+
+.brand-tag{font-size:clamp(10px,2.6vw,13px);letter-spacing:.1em;padding:7px 14px;margin-bottom:14px}
+.title{font-size:clamp(34px,11vw,64px);line-height:.95}
+.title .line2{white-space:normal}
+.subtitle{font-size:clamp(10px,2.7vw,13px);margin-top:12px;line-height:1.55}
+
+/* Section headings inside cards (e.g. "Predict your group winners"). */
+.card{padding:clamp(18px,5vw,28px)}
+.card h2{font-size:clamp(22px,6.4vw,36px);line-height:1.04}
+.card .hint{font-size:clamp(10px,2.6vw,11px)}
+
+/* The "· 24 picks" counter rendered inside the join <h2>: make it a calm,
+   normal-weight badge on its own line instead of giant Anton caps. */
+.card h2 .pick-counter{
+  display:inline-block;
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(10px,2.6vw,12px);
+  font-weight:800;
+  letter-spacing:.08em;
+  color:var(--ink);
+  background:var(--lime,#8ac926);
+  padding:4px 12px;border-radius:30px;
+  margin-left:10px;vertical-align:middle;
+  -webkit-text-fill-color:initial;
+}
+
+@media(max-width:600px){
+  .lang-switch{margin-top:16px}
+  .host-flags{gap:8px}
+  .title .line2{font-size:.9em}
+}
+
+/* ── Header right column: badge + lang + flags + live + admin, right-aligned ── */
+.brand-wrap{align-items:flex-start}
+.header-side{
+  display:flex;flex-direction:column;gap:8px;
+  align-items:flex-end;text-align:right;
+  margin-left:auto;            /* push to the right edge even when wrapped */
+  flex:0 0 auto;
+}
+.header-side .brand-tag{margin-bottom:0}
+.header-side .host-flags{justify-content:flex-end;flex-wrap:wrap}
+.header-side .lang-switch{margin-top:0}
+.header-side .live{margin-top:0;font-size:10px;letter-spacing:.1em}
+/* Tighter pills so the cluster takes less vertical room */
+.header-side .flag-pill{padding:5px 12px;font-size:10px}
+.header-side .lang-btn{padding:5px 12px}
+
+/* On narrow phones the title naturally stacks above the side column; keep the
+   side column hugging the right and never full-bleed. */
+@media(max-width:600px){
+  .brand-wrap{gap:12px}
+  .header-side{gap:7px}
+}
+
+/* ── App footer: LIVE status + Admin, moved out of the header ───────────────── */
+.app-footer{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  margin-top:28px;padding:16px 4px 4px;
+  border-top:1px solid rgba(255,255,255,.08);
+}
+.app-footer .live{margin-top:0}
+
+/* ── Primary button (Lock In My Picks) — the festive gold CTA ──────────────── */
+.primary{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;
+  font-family:'Archivo Black',sans-serif;
+  font-size:clamp(15px,3.6vw,18px);letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink,#0a1733);
+  background:linear-gradient(135deg,var(--gold,#ffd60a),var(--orange,#fb5607));
+  border:none;border-radius:16px;
+  padding:18px 24px;cursor:pointer;
+  box-shadow:0 10px 30px rgba(251,86,7,.35), inset 0 1px 0 rgba(255,255,255,.4);
+  transition:transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s, filter .18s;
+  position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent;
+}
+.primary::after{
+  /* sheen sweep */
+  content:'';position:absolute;top:0;left:-60%;width:50%;height:100%;
+  background:linear-gradient(120deg,transparent,rgba(255,255,255,.55),transparent);
+  transform:skewX(-20deg);transition:left .5s ease;
+}
+.primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 16px 40px rgba(251,86,7,.5), inset 0 1px 0 rgba(255,255,255,.5);filter:saturate(1.1)}
+.primary:hover:not(:disabled)::after{left:130%}
+.primary:active:not(:disabled){transform:translateY(0) scale(.99)}
+.primary:disabled{
+  background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.06));
+  color:rgba(255,255,255,.4);box-shadow:none;cursor:not-allowed;
+}
+
+/* Phone field shares the dark control look */
+.field input[type="tel"]{letter-spacing:.04em}
+
+/* ── Registration deadline banner / countdown ─────────────────────────────── */
+.deadline-banner{
+  display:flex;align-items:center;gap:12px;
+  background:linear-gradient(135deg,rgba(255,214,10,.12),rgba(251,86,7,.08));
+  border:1px solid rgba(255,214,10,.35);border-radius:14px;
+  padding:14px 16px;margin-bottom:18px;
+  font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--white,#fff);
+}
+.deadline-banner .icon{font-size:22px;line-height:1}
+.deadline-banner.closed{
+  background:linear-gradient(135deg,rgba(231,76,60,.16),rgba(231,76,60,.06));
+  border-color:rgba(231,76,60,.45);
+}
+.deadline-banner strong{color:var(--gold,#ffd60a);letter-spacing:.04em}
+.deadline-banner.closed strong{color:#ff6b6b}
+
+/* ── Teams grid: flag-gradient cards with watermark ───────────────────────── */
+.teamgrid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:14px;margin-top:8px;
+}
+.group-header{
+  grid-column:1/-1;display:flex;align-items:center;flex-wrap:wrap;gap:6px;
+  margin:18px 0 2px;font-family:'Archivo Black',sans-serif;
+  font-size:18px;letter-spacing:.04em;color:var(--white);
+}
+.group-header .label{
+  font-size:11px;letter-spacing:.2em;color:var(--gold);
+  background:rgba(255,214,10,.12);border:1px solid rgba(255,214,10,.3);
+  padding:2px 8px;border-radius:20px;
+}
+.group-header .group-standing{
+  font-size:13px;font-family:'Space Grotesk',sans-serif;margin-left:10px;
+  letter-spacing:0;text-transform:none;color:rgba(255,255,255,.85);
+  display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;
+}
+
+.teambox{
+  position:relative;overflow:hidden;isolation:isolate;
+  width:100%;text-align:left;cursor:pointer;
+  border:1px solid rgba(255,255,255,.14);border-radius:18px;
+  padding:14px;color:#fff;
+  box-shadow:0 8px 24px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.18);
+  transition:transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, filter .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.teambox::before{
+  /* dark scrim so text stays readable over bright flag colors */
+  content:'';position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(135deg, rgba(10,23,51,.35), rgba(10,23,51,.72));
+}
+.teambox-watermark{
+  position:absolute;z-index:-2;right:-18px;bottom:-18px;
+  width:120px;height:120px;opacity:.18;
+  background-size:contain;background-repeat:no-repeat;background-position:right bottom;
+  filter:saturate(1.2);pointer-events:none;
+}
+.teambox:hover{transform:translateY(-3px);box-shadow:0 16px 36px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.25);filter:saturate(1.05)}
+.teambox:active{transform:translateY(-1px) scale(.99)}
+.teambox.eliminated{filter:grayscale(.7) brightness(.7)}
+.teambox-content{display:flex;flex-direction:column;gap:8px}
+.teambox .tn{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  font-family:'Archivo Black',sans-serif;font-size:14px;
+  text-shadow:0 1px 3px rgba(0,0,0,.5);
+}
+.teambox .tn-team{display:flex;align-items:center;gap:8px}
+.teambox .badge{
+  font-size:10px;font-family:'JetBrains Mono',monospace;letter-spacing:.05em;
+  background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.25);
+  padding:3px 9px;border-radius:20px;white-space:nowrap;
+}
+.teambox .badge.active{background:rgba(58,134,255,.5);border-color:rgba(255,255,255,.5)}
+.teambox .badge.champ{background:linear-gradient(135deg,var(--gold),var(--orange));color:#0a1733;border-color:transparent}
+.teambox .ts{font-size:12.5px;color:rgba(255,255,255,.9);display:flex;align-items:center;gap:8px;flex-wrap:wrap;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.teambox .group-label{font-size:11px;background:rgba(0,0,0,.3);padding:2px 8px;border-radius:12px;border:1px solid rgba(255,255,255,.2)}
+.teambox .tp{font-family:'Archivo Black',sans-serif;font-size:22px;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.teambox .tp-unit{font-size:11px;font-family:'Space Grotesk',sans-serif;color:rgba(255,255,255,.65)}
+
+/* Upcoming fixtures list in the team modal */
+.upcoming-list{display:flex;flex-direction:column;gap:8px}
+.upcoming-item{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;padding:10px 14px;font-size:13px;
+}
+.upcoming-item .when{color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:11px}
+.upcoming-item .vs{color:rgba(255,255,255,.55);margin:0 6px}
+
+/* ── Matches: split flag cards ────────────────────────────────────────────── */
+.match-filters{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 16px}
+.match-filter{
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.7);border-radius:20px;padding:6px 14px;cursor:pointer;
+  font-family:'Archivo Black',sans-serif;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  transition:all .2s;
+}
+.match-filter.active{background:linear-gradient(135deg,var(--hot-pink),var(--orange));color:#fff;border-color:transparent}
+.match-day{margin-bottom:18px}
+.match-day-header{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--gold);margin:6px 0 10px;
+}
+.match-list{display:flex;flex-direction:column;gap:12px}
+
+.match-card{
+  position:relative;display:flex;flex-direction:column;
+  border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 8px 24px rgba(0,0,0,.32);
+}
+.mc-row{position:relative;z-index:2;display:grid;grid-template-columns:1fr 96px 1fr;align-items:stretch;min-height:104px}
+/* Neutral dark card — no flag-derived colour. Each flag IMAGE fills the whole
+   card height (incl. behind the footer) and fades toward the centre, staying
+   faintly visible in the middle where the two meet. */
+.match-card{background:#10182e}
+.match-card::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg, rgba(10,16,32,.16), rgba(10,16,32,.30))}
+.match-card.live{border-color:rgba(231,76,60,.6);box-shadow:0 8px 28px rgba(231,76,60,.3)}
+/* full-height flag layers */
+.mc-flag{
+  position:absolute;top:0;bottom:0;z-index:0;width:62%;
+  background-size:cover;background-repeat:no-repeat;pointer-events:none;
+}
+.mc-flag.home{left:0;background-position:left center;
+  -webkit-mask-image:linear-gradient(90deg,#000 45%,rgba(0,0,0,.25) 78%,transparent 100%);
+  mask-image:linear-gradient(90deg,#000 45%,rgba(0,0,0,.25) 78%,transparent 100%)}
+.mc-flag.away{right:0;background-position:right center;
+  -webkit-mask-image:linear-gradient(270deg,#000 45%,rgba(0,0,0,.25) 78%,transparent 100%);
+  mask-image:linear-gradient(270deg,#000 45%,rgba(0,0,0,.25) 78%,transparent 100%)}
+.mc-side{position:relative;z-index:2;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;overflow:visible;padding:10px 14px;min-height:96px;background:transparent}
+.mc-side.away{align-items:flex-end}
+/* name sits in the TOP corner, above the flag */
+.mc-team{position:relative;z-index:1;display:flex;align-items:center;gap:8px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.85)}
+.mc-name{font-family:'Archivo Black',sans-serif;font-size:20px;letter-spacing:.04em}
+.mc-center{
+  position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;padding:8px 6px;width:96px;min-width:96px;max-width:96px;text-align:center;background:transparent;
+}
+.mc-meta,.mc-stage{white-space:normal;line-height:1.25;text-align:center}
+/* No panel behind the centre — just a strong dark halo so the text reads over
+   any flag colour where the two halves meet. */
+.mc-score{font-family:'Anton',sans-serif;font-size:32px;color:#fff;line-height:1;letter-spacing:.02em;text-shadow:0 0 8px rgba(0,0,0,.9),0 2px 4px rgba(0,0,0,.95),0 0 2px rgba(0,0,0,1)}
+.mc-sep{margin:0 4px;color:var(--gold)}
+.mc-vs{font-family:'Archivo Black',sans-serif;font-size:18px;color:#fff;text-shadow:0 0 8px rgba(0,0,0,.9),0 2px 4px rgba(0,0,0,.95),0 0 2px rgba(0,0,0,1)}
+.mc-meta{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;color:#fff;margin-top:2px;text-shadow:0 0 6px rgba(0,0,0,.95),0 1px 3px rgba(0,0,0,1)}
+.mc-stage{font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.92);text-shadow:0 0 6px rgba(0,0,0,.95),0 1px 3px rgba(0,0,0,1)}
+.mc-venue{font-size:9px;color:rgba(255,255,255,.65);margin-top:2px;text-align:center;max-width:120px;text-shadow:0 1px 4px rgba(0,0,0,.9);line-height:1.2}
+.mc-livedot{width:8px;height:8px;border-radius:50%;background:#ff4d4d;box-shadow:0 0 10px #ff4d4d;animation:pulse 1.2s infinite}
+/* live time bar across the bottom of a match card */
+.match-card{padding-bottom:14px}
+.mc-timebar{position:absolute;left:0;right:0;bottom:0;height:14px;z-index:2;background:rgba(0,0,0,.45);display:flex;align-items:center}
+.mc-timebar-fill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,var(--lime,#8ac926),var(--gold,#ffd60a));box-shadow:0 0 8px rgba(138,201,38,.6);transition:width .6s ease}
+.mc-timebar-fill.paused{background:linear-gradient(90deg,var(--warn,#f1c40f),var(--orange,#fb5607))}
+.mc-timebar-label{position:relative;z-index:1;margin:0 auto;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:.1em;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9)}
+/* discreet country-name caption under each card */
+.mc-caption{position:relative;z-index:2;display:flex;justify-content:space-between;padding:6px 14px;background:rgba(10,16,32,.32);
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.04em;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.9)}
+.mc-caption span{max-width:46%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mc-caption span:last-child{text-align:right}
+/* the live time bar sits at the very bottom, below the caption */
+.match-card{padding-bottom:0}
+.mc-timebar{position:relative}
+
+/* ── Scorers table ────────────────────────────────────────────────────────── */
+.scorers-table{width:100%;border-collapse:collapse;color:#fff}
+.scorers-table th{
+  text-align:left;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:rgba(255,255,255,.5);padding:8px;border-bottom:1px solid rgba(255,255,255,.12);
+}
+.scorers-table td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.06);font-size:14px;vertical-align:middle}
+.scorers-table .player{font-weight:600}
+.scorers-table .team{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.85);font-size:13px}
+.scorers-table .goals{text-align:right;font-family:'Archivo Black',sans-serif;color:var(--gold);font-size:16px}
+.scorers-table .assists{text-align:right;color:rgba(255,255,255,.6)}
+.scorers-table tr.leader td{background:linear-gradient(90deg, rgba(255,214,10,.12), transparent)}
+
+@media(max-width:520px){
+  .mc-name{font-size:15px}
+  .mc-score{font-size:24px}
+  .mc-center{min-width:78px}
+}
+
+/* ── Golden Boot pick card ────────────────────────────────────────────────── */
+.golden-boot-card{
+  position:relative;overflow:hidden;margin-top:18px;padding:22px;
+  background:linear-gradient(135deg, rgba(58,134,255,.12), rgba(124,92,255,.08));
+  border:2px solid var(--usa-bright);border-radius:16px;
+}
+.golden-boot-card .gb-icon{position:absolute;font-size:110px;right:-6px;top:-26px;opacity:.10}
+.golden-boot-card h3{
+  font-family:'Anton',sans-serif;font-size:26px;letter-spacing:.04em;text-transform:uppercase;
+  margin-bottom:6px;background:linear-gradient(135deg, var(--usa-bright), #7c5cff);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.golden-boot-card .gb-hint{
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.7);
+  letter-spacing:.04em;margin-bottom:14px;
+}
+.golden-boot-card select{width:100%}
+
+/* Golden Boot badge on a player row (rank list / cards) */
+.gb-badge{font-size:12px;color:var(--gold)}
+
+/* ── Striker sticker (Panini-style) ───────────────────────────────────────── */
+.striker-sticker{
+  position:relative;overflow:hidden;flex:0 0 auto;
+  border-radius:14px;padding:12px 10px 10px;text-align:center;color:#fff;
+  border:2px solid rgba(255,255,255,.25);
+  box-shadow:0 8px 22px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.3);
+}
+.striker-sticker.selected{border-color:var(--gold);box-shadow:0 10px 26px rgba(255,214,10,.4)}
+.striker-sticker::before{content:'';position:absolute;inset:0;background:rgba(10,23,51,.4)}
+.striker-sticker .ss-shine{
+  position:absolute;top:-40%;left:-30%;width:60%;height:180%;
+  background:linear-gradient(120deg,transparent,rgba(255,255,255,.35),transparent);
+  transform:rotate(8deg);pointer-events:none;
+}
+.striker-sticker > *{position:relative;z-index:1}
+.ss-avatar{
+  display:flex;align-items:center;justify-content:center;
+  width:48px;height:48px;margin:0 auto 8px;border-radius:50%;
+  background:rgba(0,0,0,.35);border:2px solid rgba(255,255,255,.5);
+  font-family:'Anton',sans-serif;font-size:20px;letter-spacing:.02em;
+  text-shadow:0 1px 3px rgba(0,0,0,.6);
+}
+.ss-flag{display:block;margin-bottom:6px}
+.ss-name{
+  display:block;font-family:'Archivo Black',sans-serif;font-size:11px;
+  line-height:1.15;text-shadow:0 1px 3px rgba(0,0,0,.6);
+  overflow:hidden;text-overflow:ellipsis;
+}
+.gb-selected-sticker{display:flex;justify-content:center;margin-top:14px}
+
+/* Horizontal scroller of striker stickers */
+.striker-strip{display:flex;gap:10px;overflow-x:auto;padding:6px 2px 10px;scrollbar-width:none}
+.striker-strip::-webkit-scrollbar{display:none}
+.striker-strip .striker-sticker{cursor:pointer;transition:transform .18s}
+.striker-strip .striker-sticker:hover{transform:translateY(-3px)}
+
+/* ── Matches accordion: big collapsible date headers ──────────────────────── */
+.mc-center > *{position:relative;z-index:1}
+.match-accordion{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.day-group{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+  border-radius:16px;overflow:hidden;
+}
+.day-group.open{border-color:rgba(255,214,10,.4)}
+.day-toggle{
+  width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:transparent;border:none;cursor:pointer;color:#fff;
+  padding:14px 16px;text-align:left;-webkit-tap-highlight-color:transparent;
+}
+.day-date{display:flex;align-items:center;gap:12px}
+.day-num{
+  font-family:'Anton',sans-serif;font-size:38px;line-height:.9;
+  background:linear-gradient(135deg,var(--gold),var(--orange));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.day-wm{display:flex;flex-direction:column}
+.day-weekday{font-family:'Archivo Black',sans-serif;font-size:15px;letter-spacing:.04em;text-transform:uppercase}
+.day-month{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+.day-meta{display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.6)}
+.day-live{color:#ff6b6b;font-weight:700}
+.day-count{white-space:nowrap}
+.day-chevron{font-size:16px;transition:transform .25s;color:var(--gold)}
+.day-group.open .day-chevron{transform:rotate(180deg)}
+.day-group .match-list{padding:0 12px 14px}
+
+/* ── Match card extras: half-time score + referee ─────────────────────────── */
+.mc-ht{font-size:8px;letter-spacing:.08em;color:rgba(255,255,255,.6);text-shadow:0 1px 4px rgba(0,0,0,.9)}
+.mc-ref{flex:1;text-align:center;font-size:9px;color:rgba(255,255,255,.55);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 6px}
+
+/* ── Official group tables ────────────────────────────────────────────────── */
+.standings-tables{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.stbl-group{font-family:'Archivo Black',sans-serif;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold,#ffd60a);margin-bottom:6px}
+.stbl table{width:100%;border-collapse:collapse;color:#fff;font-size:12px}
+.stbl th{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.45);padding:4px 5px;text-align:center;border-bottom:1px solid rgba(255,255,255,.12)}
+.stbl th:nth-child(2){text-align:left}
+.stbl td{padding:6px 5px;text-align:center;border-bottom:1px solid rgba(255,255,255,.06)}
+.stbl-team{display:flex;align-items:center;gap:7px;text-align:left;font-weight:600}
+.stbl-pts{font-family:'Archivo Black',sans-serif;color:var(--gold,#ffd60a)}
+.stbl tr.qualify td{background:linear-gradient(90deg,rgba(138,201,38,.12),transparent)}
+
+/* ── Header: compact, harmonious lockup (logo = the cup mark) ─────────────── */
+header{padding:20px 0 18px;margin-bottom:22px}
+.brand-lockup{gap:14px}
+.brand-lockup svg{width:60px;height:60px}
+/* Two tidy lines, balanced weight: "USAM" then "WORLD CUP 2026" beneath it. */
+.title{font-size:clamp(26px,6vw,40px);line-height:.92;letter-spacing:.01em}
+.title .line2{font-size:.92em;margin-top:.04em;letter-spacing:.01em}
+.subtitle{margin-top:10px;font-size:clamp(10px,2.4vw,12px);letter-spacing:.12em;color:rgba(255,255,255,.55);line-height:1.5}
+@media(max-width:520px){
+  header{padding:14px 0 14px;margin-bottom:18px}
+  .brand-lockup{gap:11px}
+  .brand-lockup svg{width:48px;height:48px}
+  .title{font-size:clamp(22px,7vw,30px)}
+  .subtitle{font-size:10px;letter-spacing:.08em;margin-top:8px}
+  .brand-tag{margin-bottom:10px}
+  .host-flags{gap:6px}
+  .flag-pill{padding:5px 11px;font-size:10px}
+}
+/* consistent, readable hints across every tab */
+.card .hint{color:rgba(255,255,255,.6);line-height:1.5;margin-bottom:14px}
+
+/* ── How It Works / Rules screen ─────────────────────────────────────────── */
+.rules-hero{margin-bottom:22px}
+.rules-hero p{color:rgba(255,255,255,.75);line-height:1.6}
+.rule-block{margin-bottom:22px}
+.rule-block h3{display:flex;align-items:center;gap:10px;font-family:'Archivo Black',sans-serif;
+  font-size:18px;margin:0 0 10px}
+.rule-block p{color:rgba(255,255,255,.75);line-height:1.6;margin:0 0 10px}
+.rule-num{display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;
+  border-radius:9px;background:linear-gradient(135deg,var(--gold,#ffd60a),var(--orange,#fb5607));
+  color:#0a1733;font-family:'Anton',sans-serif;font-size:16px}
+.rule-block ul{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-direction:column;gap:8px}
+.rule-block ul li{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:11px 14px}
+.rule-block ul li .label{color:#fff;font-size:14px;line-height:1.35}
+.rule-block ul li .value{flex:none;font-family:'Anton',sans-serif;font-size:15px;color:var(--gold,#ffd60a);
+  white-space:nowrap}
+.rule-block .example{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;padding:12px 14px;color:rgba(255,255,255,.8);line-height:1.7;font-size:14px}
+.pts-pill{display:inline-block;background:rgba(255,214,10,.16);border:1px solid rgba(255,214,10,.4);
+  color:var(--gold,#ffd60a);border-radius:20px;padding:1px 9px;font-size:13px;white-space:nowrap}

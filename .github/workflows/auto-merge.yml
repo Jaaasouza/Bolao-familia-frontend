@@ -1,0 +1,55 @@
+name: auto-merge
+
+# When Claude pushes to a claude/** branch, run the checks inline and, if they
+# pass, open a PR (if needed) and squash-merge it into main automatically — so
+# no manual merge is needed. Tests run here directly because PRs opened by
+# GITHUB_TOKEN don't trigger the normal `web` workflow.
+on:
+  push:
+    branches:
+      - 'claude/**'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  test-and-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install + test + build
+        working-directory: web
+        run: |
+          npm ci
+          npm test
+          npm run build
+
+      - name: Open PR (if missing) and squash-merge into main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          set -e
+          git fetch origin main
+          # Skip if the branch isn't ahead of main (nothing to merge).
+          AHEAD=$(git rev-list --count origin/main..HEAD)
+          if [ "$AHEAD" -eq 0 ]; then
+            echo "No commits ahead of main; nothing to merge."; exit 0
+          fi
+          # Create the PR if one doesn't already exist (ignore error if it does).
+          gh pr create --base main --head "$BRANCH" \
+            --title "auto: $BRANCH" \
+            --body "Automated PR — checks ran inline in the auto-merge workflow." \
+            || echo "PR already exists or could not be created; continuing."
+          # Squash-merge by branch name (gh resolves the open PR).
+          gh pr merge "$BRANCH" --squash

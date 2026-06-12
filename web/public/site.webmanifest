@@ -1,0 +1,14 @@
+{
+  "name": "USAM World Cup 2026",
+  "short_name": "USAM 2026",
+  "description": "Predict every match score — USAM World Cup 2026 pool.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a1733",
+  "theme_color": "#06a77d",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

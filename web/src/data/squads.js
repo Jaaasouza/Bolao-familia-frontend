@@ -1,0 +1,77 @@
+// ============ SQUADS ============
+// Ported verbatim from the SQUADS_SEED constant in usam-world-cup-2026.html.
+// Structure: { "Team Name": [ {num, name, pos, club, age, role?} ] }
+// pos: 'GK' (goalkeeper), 'DEF', 'MID', 'FW'
+// Seed data for a few teams as example — replace/extend via admin.
+export const SQUADS_SEED = {
+  'Brazil': [
+    { num: 1, name: 'Alisson', pos: 'GK', club: 'Liverpool', age: 32 },
+    { num: 23, name: 'Ederson', pos: 'GK', club: 'Man City', age: 31 },
+    { num: 4, name: 'Marquinhos', pos: 'DEF', club: 'PSG', age: 30 },
+    { num: 3, name: 'Éder Militão', pos: 'DEF', club: 'Real Madrid', age: 27 },
+    { num: 6, name: 'Wendell', pos: 'DEF', club: 'Porto', age: 31 },
+    { num: 2, name: 'Danilo', pos: 'DEF', club: 'Juventus', age: 33 },
+    { num: 5, name: 'Casemiro', pos: 'MID', club: 'Man United', age: 33 },
+    { num: 8, name: 'Bruno Guimarães', pos: 'MID', club: 'Newcastle', age: 27 },
+    { num: 7, name: 'Lucas Paquetá', pos: 'MID', club: 'West Ham', age: 27 },
+    { num: 10, name: 'Rodrygo', pos: 'FW', club: 'Real Madrid', age: 24 },
+    { num: 20, name: 'Vinícius Jr.', pos: 'FW', club: 'Real Madrid', age: 24 },
+    { num: 9, name: 'Endrick', pos: 'FW', club: 'Real Madrid', age: 18 },
+    { num: 11, name: 'Raphinha', pos: 'FW', club: 'Barcelona', age: 28 },
+  ],
+  'Argentina': [
+    { num: 23, name: 'Emiliano Martínez', pos: 'GK', club: 'Aston Villa', age: 32 },
+    { num: 12, name: 'Gerónimo Rulli', pos: 'GK', club: 'Marseille', age: 32 },
+    { num: 13, name: 'Cristian Romero', pos: 'DEF', club: 'Tottenham', age: 27 },
+    { num: 25, name: 'Lisandro Martínez', pos: 'DEF', club: 'Man United', age: 26 },
+    { num: 8, name: 'Marcos Acuña', pos: 'DEF', club: 'River Plate', age: 33 },
+    { num: 26, name: 'Nahuel Molina', pos: 'DEF', club: 'Atlético Madrid', age: 26 },
+    { num: 5, name: 'Leandro Paredes', pos: 'MID', club: 'Roma', age: 31 },
+    { num: 20, name: 'Alexis Mac Allister', pos: 'MID', club: 'Liverpool', age: 26 },
+    { num: 7, name: 'Rodrigo De Paul', pos: 'MID', club: 'Atlético Madrid', age: 30 },
+    { num: 11, name: 'Ángel Di María', pos: 'MID', club: 'Benfica', age: 36 },
+    { num: 10, name: 'Lionel Messi', pos: 'FW', club: 'Inter Miami', age: 38 },
+    { num: 22, name: 'Lautaro Martínez', pos: 'FW', club: 'Inter', age: 27 },
+    { num: 9, name: 'Julián Álvarez', pos: 'FW', club: 'Atlético Madrid', age: 24 },
+  ],
+  'France': [
+    { num: 1, name: 'Mike Maignan', pos: 'GK', club: 'Milan', age: 30 },
+    { num: 5, name: 'Jules Koundé', pos: 'DEF', club: 'Barcelona', age: 27 },
+    { num: 4, name: 'Dayot Upamecano', pos: 'DEF', club: 'Bayern', age: 27 },
+    { num: 22, name: 'Theo Hernández', pos: 'DEF', club: 'Milan', age: 28 },
+    { num: 8, name: 'Aurélien Tchouaméni', pos: 'MID', club: 'Real Madrid', age: 25 },
+    { num: 13, name: "N'Golo Kanté", pos: 'MID', club: 'Al Ittihad', age: 34 },
+    { num: 14, name: 'Adrien Rabiot', pos: 'MID', club: 'Marseille', age: 30 },
+    { num: 10, name: 'Kylian Mbappé', pos: 'FW', club: 'Real Madrid', age: 27 },
+    { num: 11, name: 'Ousmane Dembélé', pos: 'FW', club: 'PSG', age: 28 },
+    { num: 9, name: 'Olivier Giroud', pos: 'FW', club: 'LAFC', age: 39 },
+    { num: 7, name: 'Antoine Griezmann', pos: 'FW', club: 'Atlético Madrid', age: 34 },
+  ],
+  'Spain': [
+    { num: 23, name: 'Unai Simón', pos: 'GK', club: 'Athletic Bilbao', age: 28 },
+    { num: 14, name: 'Aymeric Laporte', pos: 'DEF', club: 'Al Nassr', age: 31 },
+    { num: 4, name: 'Robin Le Normand', pos: 'DEF', club: 'Atlético Madrid', age: 29 },
+    { num: 2, name: 'Dani Carvajal', pos: 'DEF', club: 'Real Madrid', age: 33 },
+    { num: 18, name: 'Martín Zubimendi', pos: 'MID', club: 'Arsenal', age: 26 },
+    { num: 8, name: 'Fabián Ruiz', pos: 'MID', club: 'PSG', age: 29 },
+    { num: 6, name: 'Mikel Merino', pos: 'MID', club: 'Arsenal', age: 29 },
+    { num: 19, name: 'Lamine Yamal', pos: 'FW', club: 'Barcelona', age: 18 },
+    { num: 21, name: 'Nico Williams', pos: 'FW', club: 'Athletic Bilbao', age: 23 },
+    { num: 7, name: 'Álvaro Morata', pos: 'FW', club: 'Galatasaray', age: 33 },
+  ],
+  'England': [
+    { num: 1, name: 'Jordan Pickford', pos: 'GK', club: 'Everton', age: 31 },
+    { num: 2, name: 'Kyle Walker', pos: 'DEF', club: 'Burnley', age: 35 },
+    { num: 5, name: 'John Stones', pos: 'DEF', club: 'Man City', age: 31 },
+    { num: 6, name: 'Marc Guéhi', pos: 'DEF', club: 'Crystal Palace', age: 25 },
+    { num: 3, name: 'Luke Shaw', pos: 'DEF', club: 'Man United', age: 30 },
+    { num: 4, name: 'Declan Rice', pos: 'MID', club: 'Arsenal', age: 27 },
+    { num: 8, name: 'Jude Bellingham', pos: 'MID', club: 'Real Madrid', age: 22 },
+    { num: 20, name: 'Phil Foden', pos: 'MID', club: 'Man City', age: 25 },
+    { num: 10, name: 'Cole Palmer', pos: 'MID', club: 'Chelsea', age: 23 },
+    { num: 7, name: 'Bukayo Saka', pos: 'FW', club: 'Arsenal', age: 24 },
+    { num: 9, name: 'Harry Kane', pos: 'FW', club: 'Bayern', age: 32 },
+  ],
+};
+
+export default SQUADS_SEED;
