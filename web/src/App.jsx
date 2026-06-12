@@ -16,6 +16,7 @@ import MatchesView from './views/MatchesView.jsx';
 import PredictTab from './views/PredictTab.jsx';
 import ScoreboardTab from './views/ScoreboardTab.jsx';
 import DashboardTab from './views/DashboardTab.jsx';
+import ChatView from './views/ChatView.jsx';
 import { AdminPanel } from './admin/AdminPanel.jsx';
 import ShareButton from './components/ShareButton.jsx';
 
@@ -116,6 +117,7 @@ export default function App() {
       {tab === 'predict' && <PredictTab matches={matches} standings={standings} />}
       {tab === 'scoreboard' && <ScoreboardTab />}
       {tab === 'dashboard' && <DashboardTab matches={matches} standings={standings} />}
+      {tab === 'chat' && <ChatView />}
       {tab === 'matches' && <MatchesView matches={matches} />}
       {tab === 'teams' && <TeamsView standingsTable={standingsTable} />}
       {tab === 'rules' && <RulesView />}

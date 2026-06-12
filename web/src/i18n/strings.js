@@ -89,6 +89,16 @@ export const I18N = {
     mFilterAll: "All", mFilterLive: "Live", mFilterUpcoming: "Upcoming", mFilterFinished: "Finished",
     mNone: "No matches to show.", mMatch: "match", mMatches: "matches",
     mLiveSuffix: "live", mDateTBD: "Date TBD",
+    // --- Chat ---
+    tabChat: "💬 Chat", menuChat: "Chat",
+    chatTitle: "Pool Chat",
+    chatHint: "Talk smack, celebrate, and plan the watch party 🍿",
+    chatPlaceholder: "Write a message…",
+    chatSend: "Send",
+    chatEmpty: "No messages yet — say hi! 👋",
+    chatSignIn: "Sign in to join the chat.",
+    chatYou: "You",
+    chatFailed: "Couldn't send. Try again.",
   },
   pt: {
     brandTag: "⚽ Bolão Oficial · 11 Junho – 19 Julho",
@@ -175,6 +185,16 @@ export const I18N = {
     mFilterAll: "Todos", mFilterLive: "Ao vivo", mFilterUpcoming: "Próximos", mFilterFinished: "Encerrados",
     mNone: "Nenhum jogo para mostrar.", mMatch: "jogo", mMatches: "jogos",
     mLiveSuffix: "ao vivo", mDateTBD: "Data a definir",
+    // --- Chat ---
+    tabChat: "💬 Chat", menuChat: "Chat",
+    chatTitle: "Chat do Bolão",
+    chatHint: "Provoque, comemore e combine de assistir junto 🍿",
+    chatPlaceholder: "Escreva uma mensagem…",
+    chatSend: "Enviar",
+    chatEmpty: "Ainda não há mensagens — manda um oi! 👋",
+    chatSignIn: "Entre para participar do chat.",
+    chatYou: "Você",
+    chatFailed: "Não deu pra enviar. Tente de novo.",
   },
 };
 
