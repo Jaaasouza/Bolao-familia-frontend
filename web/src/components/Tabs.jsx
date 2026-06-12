@@ -9,7 +9,6 @@ export const TABS = [
   { id: 'predict', labelKey: 'tabPredict', menuKey: 'menuPredict', icon: '🎯' },
   { id: 'scoreboard', labelKey: 'tabScoreboard', menuKey: 'menuScoreboard', icon: '🏆' },
   { id: 'dashboard', labelKey: 'tabDashboard', menuKey: 'menuDashboard', icon: '📊' },
-  { id: 'chat', labelKey: 'tabChat', menuKey: 'menuChat', icon: '💬' },
   { id: 'matches', labelKey: 'tabMatches', menuKey: 'menuMatches', icon: '📅' },
   { id: 'teams', labelKey: 'tabTeams', menuKey: 'menuTeams', icon: '⚽' },
   { id: 'rules', labelKey: 'tabRules', menuKey: 'menuRules', icon: '📖' },
