@@ -47,42 +47,42 @@ const EN = {
   },
 };
 
-const ES = {
-  heroTitle: 'Cómo Jugar',
+const PT = {
+  heroTitle: 'Como Jogar',
   heroHtml:
-    `¡Bienvenido a la quiniela <strong>${APP_NAME}</strong>! 🎉 Predices el <strong style="color:var(--gold)">marcador exacto de cada partido</strong>, fase por fase. La fase de grupos se envía de <strong>un solo tiro</strong> — todos los partidos a la vez — y una vez bloqueada <strong style="color:var(--gold)">no se puede cambiar</strong>. Cada fase siguiente (Ronda de 32 → Final) es su propio envío único. Gana quien tenga más puntos al final.`,
+    `Bem-vindo ao bolão <strong>${APP_NAME}</strong>! 🎉 Você palpita o <strong style="color:var(--gold)">placar exato de cada jogo</strong>, fase por fase. A fase de grupos é enviada de <strong>uma só vez</strong> — todos os jogos do grupo juntos — e depois de travada <strong style="color:var(--gold)">não pode ser alterada</strong>. Cada fase seguinte (Fase de 32 → Final) é um envio único próprio. Quem tiver mais pontos depois da Final vence.`,
   b1: {
-    h: 'Predice Cada Marcador',
+    h: 'Palpite Cada Placar',
     pHtml: [
-      'Para cada partido, pon un marcador. La casilla central de <strong>empate</strong> significa empate (X–X); las dos casillas de los <strong>lados</strong> significan un ganador. Llena el empate y los lados se bloquean; llena un lado y el empate se bloquea.',
-      '🔒 <strong>Un solo tiro por fase.</strong> La fase de grupos se envía toda de una vez y se bloquea para siempre. R32, R16, CF, SF y la Final tienen un envío cada una.',
+      'Para cada jogo, defina um placar. A caixa central de <strong>empate</strong> significa empate (X–X); as duas caixas das <strong>laterais</strong> significam um vencedor. Preencha o empate e as laterais travam; preencha uma lateral e o empate trava.',
+      '🔒 <strong>Um envio por fase.</strong> A fase de grupos é enviada toda de uma vez e trava para sempre. Fase de 32, Oitavas, Quartas, Semis e a Final têm um envio cada.',
     ],
   },
   b2: {
-    h: 'Puntos por Partido 🎯',
-    pHtml: 'Cada partido se puntúa de la misma forma simple:',
+    h: 'Pontos por Jogo 🎯',
+    pHtml: 'Cada jogo é pontuado da mesma forma simples:',
     li: [
-      ['🎯 Marcador exacto (local Y visitante correctos)', '+3 pts'],
-      ['✅ Solo el resultado (ganador correcto, o empate)', '+1 pt'],
-      ['❌ Resultado incorrecto', '0 pts'],
+      ['🎯 Placar exato (mandante E visitante certos)', '+3 pts'],
+      ['✅ Só o resultado (vencedor certo, ou empate)', '+1 pt'],
+      ['❌ Resultado errado', '0 pts'],
     ],
     exampleHtml:
-      '<strong>Ejemplo:</strong> Real <strong>2–1</strong> (gana local).<br>Dijiste 2–1 → <span class="pts-pill">+3 exacto</span> · 1–0 (gana local) → <span class="pts-pill">+1 resultado</span> · 0–1 → <span class="pts-pill">0</span>'
-      + '<br><br>🎁 <strong>Bono de grupo:</strong> acierta los dos primeros de un grupo (según tus marcadores) → <span class="pts-pill">+2</span> en orden · <span class="pts-pill">+1</span> invertido. Se suma cuando termina cada grupo.',
+      '<strong>Exemplo:</strong> Resultado <strong>2–1</strong> (vitória do mandante).<br>Você disse 2–1 → <span class="pts-pill">+3 exato</span> · 1–0 (vitória do mandante) → <span class="pts-pill">+1 resultado</span> · 0–1 → <span class="pts-pill">0</span>'
+      + '<br><br>🎁 <strong>Bônus de grupo:</strong> acerte os dois primeiros de um grupo (pelos seus placares) → <span class="pts-pill">+2</span> na ordem · <span class="pts-pill">+1</span> invertido. Somado quando cada grupo termina.',
   },
   b3: {
-    h: 'Ganar el Pool',
-    pHtml: 'Gana quien tenga más puntos al final. Si dos empatan en puntos, el desempate es:',
+    h: 'Como Vencer o Bolão',
+    pHtml: 'Quem tiver mais pontos depois da Final vence. Se dois empatarem em pontos, o critério de desempate é:',
     li: [
-      ['1️⃣ Más marcadores exactos (+3)', '→'],
+      ['1️⃣ Mais placares exatos (+3)', '→'],
     ],
   },
   b4: {
-    h: 'Consejos de Estrategia',
+    h: 'Dicas de Estratégia',
     pHtml: [
-      '👉 <strong>Los marcadores exactos valen oro:</strong> +3 vs +1 suma rápido en todo el torneo — no elijas solo al ganador, elige el marcador.',
-      '👉 <strong>Bono de grupo extra:</strong> acertar los dos primeros de un grupo suma +2 (o +1 invertido) — pero los puntos por partido son la mayoría, así que mantén la constancia.',
-      '👉 <strong>Piensa antes de bloquear:</strong> una fase es un solo tiro y es final. Llena cada partido, revisa, y confirma.',
+      '👉 <strong>Placares exatos valem ouro:</strong> +3 vs +1 soma rápido ao longo de toda a Copa — não escolha só o vencedor, escolha o placar.',
+      '👉 <strong>Bônus de grupo por cima:</strong> acertar os dois primeiros de um grupo soma +2 (ou +1 invertido) — mas os pontos por jogo são a maior parte, então mantenha a constância.',
+      '👉 <strong>Pense antes de travar:</strong> a fase é um envio único e definitivo. Preencha cada jogo, confira, e confirme.',
     ],
   },
 };
@@ -124,7 +124,7 @@ function RuleBlock({ num, block }) {
 
 export default function RulesView() {
   const { lang } = useLang();
-  const R = lang === 'es' ? ES : EN;
+  const R = lang === 'pt' ? PT : EN;
 
   return (
     <div className="panel active" id="panel-rules">

@@ -10,7 +10,7 @@ import { useLang } from '../i18n/LanguageContext.jsx';
 const HOME_COLOR = '#3a86ff';
 const AWAY_COLOR = '#ffd60a';
 
-const T = { en: { yourPick: 'Your pick:' }, es: { yourPick: 'Tu pronóstico:' } };
+const T = { en: { yourPick: 'Your pick:' }, pt: { yourPick: 'Seu palpite:' } };
 
 // `pred` (optional) = the viewer's pick for this match: { home, away }.
 export default function LiveMatch({ m, pred = null }) {

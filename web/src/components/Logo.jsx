@@ -21,7 +21,7 @@ function OuterPent({ x, y, r }) {
   return <polygon points={poly(pts)} fill="#0a1733" />;
 }
 
-export default function Logo({ size = 48, withYear = true, title = 'USAM World Cup 2026' }) {
+export default function Logo({ size = 48, withYear = true, title = 'Família Bolão Copa 2026' }) {
   return (
     <svg
       width={size}

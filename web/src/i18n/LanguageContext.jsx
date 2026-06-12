@@ -7,11 +7,11 @@ const STORAGE_KEY = 'usam_lang';
 function readInitialLang() {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === 'en' || stored === 'es') return stored;
+    if (stored === 'en' || stored === 'pt') return stored;
   } catch {
     // localStorage may be unavailable (SSR / private mode) — fall through.
   }
-  return 'en';
+  return 'pt';
 }
 
 const LanguageContext = createContext(null);

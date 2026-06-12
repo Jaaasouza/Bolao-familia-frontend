@@ -8,7 +8,7 @@ import { useLang } from '../i18n/LanguageContext.jsx';
 
 const T = {
   en: { subs: 'Substitutions', manager: 'Manager', soon: 'Lineups appear ~1h before kickoff' },
-  es: { subs: 'Suplentes', manager: 'DT', soon: 'Las alineaciones salen ~1h antes' },
+  pt: { subs: 'Reservas', manager: 'Técnico', soon: 'As escalações saem ~1h antes do jogo' },
 };
 
 function Side({ team, lineup, color, t, align }) {

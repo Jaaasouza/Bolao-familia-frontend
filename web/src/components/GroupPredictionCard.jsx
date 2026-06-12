@@ -9,7 +9,7 @@ import { TEAM_ABBR } from '../data/teamMeta.js';
 
 const GP_TXT = {
   en: { title: '🔮 Your predicted group winners', group: 'Group', partial: ' · partial' },
-  es: { title: '🔮 Tus clasificados previstos', group: 'Grupo', partial: ' · parcial' },
+  pt: { title: '🔮 Seus classificados previstos', group: 'Grupo', partial: ' · parcial' },
 };
 
 // Look up actual decided standings for a group letter, tolerating "A" / "GROUP_A".

@@ -39,8 +39,8 @@ export async function enablePush() {
     });
   }
   // Tag the subscription with the chosen language so notifications match it.
-  let lang = 'en';
-  try { const v = localStorage.getItem('usam_lang'); if (v === 'en' || v === 'es') lang = v; } catch { /* ignore */ }
+  let lang = 'pt';
+  try { const v = localStorage.getItem('usam_lang'); if (v === 'en' || v === 'pt') lang = v; } catch { /* ignore */ }
   await API.pushSubscribe(sub.toJSON(), lang, token);
   return true;
 }

@@ -8,14 +8,14 @@ import { useLang } from '../i18n/LanguageContext.jsx';
 const ICON = { goal: '⚽', 'own-goal': '🥅', 'pen-miss': '❌', yellow: '🟨', red: '🟥' };
 const KIND_LABEL = {
   en: { goal: 'Goal', 'own-goal': 'Own goal', 'pen-miss': 'Pen missed', yellow: 'Yellow', red: 'Red' },
-  es: { goal: 'Gol', 'own-goal': 'Gol contra', 'pen-miss': 'Penal fallado', yellow: 'Amarilla', red: 'Roja' },
+  pt: { goal: 'Gol', 'own-goal': 'Gol contra', 'pen-miss': 'Pênalti perdido', yellow: 'Amarelo', red: 'Vermelho' },
 };
 const LIVE = new Set(['IN_PLAY', 'PAUSED', 'LIVE']);
 const T = {
   en: { title: 'Live · key moments', pens: 'Penalties',
     soon: 'Kick-off soon ⚽', noneLive: 'No goals or cards yet — game underway', done: 'Full time — no goals or cards' },
-  es: { title: 'En vivo · momentos', pens: 'Penales',
-    soon: 'Ya empieza ⚽', noneLive: 'Sin goles ni tarjetas aún — partido en curso', done: 'Final — sin goles ni tarjetas' },
+  pt: { title: 'Ao vivo · momentos', pens: 'Pênaltis',
+    soon: 'Já vai começar ⚽', noneLive: 'Sem gols ou cartões ainda — jogo em andamento', done: 'Fim de jogo — sem gols ou cartões' },
 };
 
 export default function LiveFeed({ liveEvents, status, minute, homeTeam, awayTeam, homeColor = '#3a86ff', awayColor = '#ffd60a' }) {

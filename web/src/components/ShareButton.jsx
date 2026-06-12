@@ -1,6 +1,6 @@
 // Share button (footer) → opens a QR code of the current site URL so people can
-// scan and join. Works on any deploy (uses window.location.origin), so both the
-// USAM pool and any duplicate get their own correct link with no config.
+// scan and join. Works on any deploy (uses window.location.origin), so the pool
+// and any duplicate get their own correct link with no config.
 import { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
 import { useLang } from '../i18n/LanguageContext.jsx';
@@ -8,7 +8,7 @@ import { APP_NAME } from '../config/app.js';
 
 const SH_TXT = {
   en: { share: '📤 Share', title: 'Scan to join', sub: 'Point your phone camera at the code', copy: 'Copy link', copied: '✓ Link copied!', shareBtn: 'Share…', close: 'Close' },
-  es: { share: '📤 Compartir', title: 'Escanea para unirte', sub: 'Apunta la cámara del celular al código', copy: 'Copiar enlace', copied: '✓ ¡Enlace copiado!', shareBtn: 'Compartir…', close: 'Cerrar' },
+  pt: { share: '📤 Compartilhar', title: 'Escaneie para entrar', sub: 'Aponte a câmera do celular para o código', copy: 'Copiar link', copied: '✓ Link copiado!', shareBtn: 'Compartilhar…', close: 'Fechar' },
 };
 
 const SH_CSS = `

@@ -18,11 +18,11 @@ const phaseOf = (m) => m.phase || STAGE_TO_PHASE[m.stage] || 'group';
 
 const PHASE_NAME = {
   en: { group: 'Group Stage', r32: 'Round of 32', r16: 'Round of 16', qf: 'Quarter-finals', sf: 'Semi-finals', final: 'Final' },
-  es: { group: 'Fase de Grupos', r32: 'Ronda de 32', r16: 'Octavos de Final', qf: 'Cuartos de Final', sf: 'Semifinales', final: 'Final' },
+  pt: { group: 'Fase de Grupos', r32: 'Fase de 32', r16: 'Oitavas de Final', qf: 'Quartas de Final', sf: 'Semifinais', final: 'Final' },
 };
 const TXT = {
   en: { closeIn: (p) => `${p} picks close in`, locked: 'Predictions for this phase are locked', soon: 'Closing soon!' },
-  es: { closeIn: (p) => `Los pronósticos de ${p} cierran en`, locked: 'Los pronósticos de esta fase están bloqueados', soon: '¡Cierra pronto!' },
+  pt: { closeIn: (p) => `Os palpites da ${p} fecham em`, locked: 'Os palpites desta fase estão travados', soon: 'Fecha em breve!' },
 };
 
 // Earliest still-future kickoff of the first phase that hasn't started → that's

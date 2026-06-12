@@ -19,13 +19,13 @@ import DashboardTab from './views/DashboardTab.jsx';
 import { AdminPanel } from './admin/AdminPanel.jsx';
 import ShareButton from './components/ShareButton.jsx';
 
-// EN/ES switch — lives in the footer now (language is chosen on the entry gate).
+// PT/EN switch — lives in the footer now (language is chosen on the entry gate).
 function LangSwitch() {
   const { lang, setLang } = useLang();
   return (
     <div className="lang-switch">
+      <button className={'lang-btn' + (lang === 'pt' ? ' active' : '')} onClick={() => setLang('pt')}>PT</button>
       <button className={'lang-btn' + (lang === 'en' ? ' active' : '')} onClick={() => setLang('en')}>EN</button>
-      <button className={'lang-btn' + (lang === 'es' ? ' active' : '')} onClick={() => setLang('es')}>ES</button>
     </div>
   );
 }

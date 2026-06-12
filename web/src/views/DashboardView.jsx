@@ -15,10 +15,10 @@ import MatchCard, { MATCH_CARD_EXTRA_CSS } from '../components/MatchCard.jsx';
 import GroupPredictionCard from '../components/GroupPredictionCard.jsx';
 import CountdownBar from '../components/CountdownBar.jsx';
 
-// Phase names + all Dashboard copy, EN/ES.
+// Phase names + all Dashboard copy, EN/PT.
 const PHASE_NAME = {
   en: { group: 'Group Stage', r32: 'Round of 32', r16: 'Round of 16', qf: 'Quarter-finals', sf: 'Semi-finals', final: 'Final' },
-  es: { group: 'Fase de Grupos', r32: 'Ronda de 32', r16: 'Octavos de Final', qf: 'Cuartos de Final', sf: 'Semifinales', final: 'Final' },
+  pt: { group: 'Fase de Grupos', r32: 'Fase de 32', r16: 'Oitavas de Final', qf: 'Quartas de Final', sf: 'Semifinais', final: 'Final' },
 };
 const DTXT = {
   en: {
@@ -29,13 +29,13 @@ const DTXT = {
     noPoints: 'No points yet — finished matches you picked will show here.', pick: 'pick',
     myPicks: '📝 My picks', noPicksYet: "You haven't made picks yet.", group: 'Group',
   },
-  es: {
-    title: 'Mi Panel', earned: (n) => `${n} pts ganados hasta ahora`, noMatches: 'Aún no hay partidos.',
-    latest: 'ÚLTIMO RESULTADO', yourPick: 'Tu pronóstico:', noPick: 'Sin pronóstico para este partido', pts: 'pts',
-    rank: '🏆 Clasificación', fullRanking: '🏆 Clasificación completa', seeAll: (n) => `Ver los ${n} ›`, noScores: 'Aún no hay puntos.',
-    you: '(tú)', histTitle: '📈 Mi historial de puntos', histModal: '📈 Historial de puntos',
-    noPoints: 'Aún no hay puntos — los partidos terminados que pronosticaste aparecerán aquí.', pick: 'pron.',
-    myPicks: '📝 Mis pronósticos', noPicksYet: 'Aún no has hecho pronósticos.', group: 'Grupo',
+  pt: {
+    title: 'Meu Painel', earned: (n) => `${n} pts conquistados até agora`, noMatches: 'Ainda não há jogos.',
+    latest: 'ÚLTIMO RESULTADO', yourPick: 'Seu palpite:', noPick: 'Sem palpite para este jogo', pts: 'pts',
+    rank: '🏆 Classificação', fullRanking: '🏆 Classificação completa', seeAll: (n) => `Ver todos os ${n} ›`, noScores: 'Ainda não há pontos.',
+    you: '(você)', histTitle: '📈 Meu histórico de pontos', histModal: '📈 Histórico de pontos',
+    noPoints: 'Ainda não há pontos — os jogos encerrados que você palpitou aparecerão aqui.', pick: 'palp.',
+    myPicks: '📝 Meus palpites', noPicksYet: 'Você ainda não fez palpites.', group: 'Grupo',
   },
 };
 const useDash = () => { const { lang } = useLang(); return { T: DTXT[lang] || DTXT.en, pn: PHASE_NAME[lang] || PHASE_NAME.en }; };

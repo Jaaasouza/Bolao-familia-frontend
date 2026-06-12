@@ -8,10 +8,10 @@ import GroupPredictionCard from '../components/GroupPredictionCard.jsx';
 // Phase display names per language (PHASE_LONG in teamStats is English-only).
 const PHASE_NAME = {
   en: { group: 'Group Stage', r32: 'Round of 32', r16: 'Round of 16', qf: 'Quarter-finals', sf: 'Semi-finals', final: 'Final' },
-  es: { group: 'Fase de Grupos', r32: 'Ronda de 32', r16: 'Octavos de Final', qf: 'Cuartos de Final', sf: 'Semifinales', final: 'Final' },
+  pt: { group: 'Fase de Grupos', r32: 'Fase de 32', r16: 'Oitavas de Final', qf: 'Quartas de Final', sf: 'Semifinais', final: 'Final' },
 };
 
-// All Predict copy, EN/ES (functions for the interpolated strings).
+// All Predict copy, EN/PT (functions for the interpolated strings).
 const TXT = {
   en: {
     title: 'Predict Scores',
@@ -29,21 +29,21 @@ const TXT = {
     confirm: (p) => `Lock in your ${p} picks? This is final — they cannot be changed.`,
     okLocked: '🔒 Locked in! Good luck.', okSubmit: '✓ Submitted!', failSubmit: 'Submit failed',
   },
-  es: {
-    title: 'Predice los Marcadores',
-    hint: 'Predice el marcador exacto de cada partido de esta fase y bloquéalos de un solo tiro. Cada ronda se abre para pronósticos cuando termina la anterior.',
-    legExact: 'pts marcador exacto', legResult: 'pt resultado correcto (ganador / empate)', legZero: 'si no',
-    legBoxes: 'casilla central = empate (X-X) · lados = un ganador',
+  pt: {
+    title: 'Palpite os Placares',
+    hint: 'Palpite o placar exato de cada jogo desta fase e trave todos de uma vez. Cada fase abre para palpites assim que a anterior termina.',
+    legExact: 'pts placar exato', legResult: 'pt resultado certo (vencedor / empate)', legZero: 'caso contrário',
+    legBoxes: 'caixa central = empate (X-X) · laterais = um vencedor',
     group: 'Grupo',
-    waiting: (n) => `Esperando ${n} partido${n > 1 ? 's' : ''} — los equipos se definen cuando termina la ronda anterior. Podrás pronosticar aquí en cuanto aparezcan.`,
-    progress: (d, t) => `${d}/${t} partidos pronosticados`,
-    saving: 'Guardando…', waitTeams: 'Esperando a los equipos…',
-    lockBtn: (p) => `🔒 Bloquear mis pronósticos de ${p} (final)`,
-    fillAll: (t) => `Completa los ${t} partidos para terminar`,
-    lockedMsg: (p) => `🔒 Tus pronósticos de ${p} están bloqueados — no se pueden cambiar.`,
-    startedMsg: '⏱ Esta fase ya comenzó — los pronósticos están cerrados.',
-    confirm: (p) => `¿Bloquear tus pronósticos de ${p}? Es definitivo — no se pueden cambiar.`,
-    okLocked: '🔒 ¡Bloqueado! Buena suerte.', okSubmit: '✓ ¡Enviado!', failSubmit: 'Error al enviar',
+    waiting: (n) => `Aguardando ${n} jogo${n > 1 ? 's' : ''} — os times são definidos quando a fase anterior termina. Você poderá palpitar aqui assim que aparecerem.`,
+    progress: (d, t) => `${d}/${t} jogos palpitados`,
+    saving: 'Salvando…', waitTeams: 'Aguardando os times…',
+    lockBtn: (p) => `🔒 Travar meus palpites da ${p} (final)`,
+    fillAll: (t) => `Preencha os ${t} jogos para concluir`,
+    lockedMsg: (p) => `🔒 Seus palpites da ${p} estão travados — não podem ser alterados.`,
+    startedMsg: '⏱ Esta fase já começou — os palpites estão encerrados.',
+    confirm: (p) => `Travar seus palpites da ${p}? É definitivo — não podem ser alterados.`,
+    okLocked: '🔒 Travado! Boa sorte.', okSubmit: '✓ Enviado!', failSubmit: 'Falha ao enviar',
   },
 };
 

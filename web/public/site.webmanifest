@@ -1,7 +1,7 @@
 {
-  "name": "USAM World Cup 2026",
-  "short_name": "USAM 2026",
-  "description": "Predict every match score — USAM World Cup 2026 pool.",
+  "name": "Família Bolão Copa 2026",
+  "short_name": "Família 2026",
+  "description": "Palpite o placar de cada jogo — bolão da família na Copa 2026.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a1733",

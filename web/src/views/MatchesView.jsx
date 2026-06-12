@@ -14,7 +14,7 @@ function localDayKey(d) {
 
 export default function MatchesView({ matches = [] }) {
   const { t, lang } = useLang();
-  const loc = lang === 'es' ? 'es' : 'en';
+  const loc = lang === 'pt' ? 'pt-BR' : 'en';
   const [filter, setFilter] = useState('all'); // all | live | upcoming | finished
 
   const all = useMemo(
