@@ -15,7 +15,7 @@ const PHASE_NAME = {
 const TXT = {
   en: {
     title: 'Predict Scores',
-    hint: 'Predict the score of any match that hasn’t kicked off yet — pick whenever you like and edit until the whistle. Matches that already started are locked, and finished ones drop off.',
+    hint: 'Predict the score of any match that hasn’t kicked off yet. Heads up: once you submit a pick it’s final and can’t be changed.',
     legExact: 'pts exact score', legResult: 'pt right result (winner / draw)', legZero: 'otherwise',
     legBoxes: 'middle box = draw (X-X) · sides = a winner',
     group: 'Group',
@@ -25,11 +25,12 @@ const TXT = {
     saveBtn: (n) => `💾 Save my picks${n ? ` (${n})` : ''}`,
     savedMsg: '✓ Picks saved!',
     allStarted: 'Every match in this phase has already started.',
+    confirmFinal: (n) => `Submit ${n} pick${n > 1 ? 's' : ''}? Once sent they're final and can't be changed.`,
     failSubmit: 'Save failed',
   },
   pt: {
     title: 'Palpite os Placares',
-    hint: 'Palpite o placar de qualquer jogo que ainda não começou — faça quando quiser e edite até a bola rolar. Jogos que já começaram ficam travados, e os que já acabaram saem da lista.',
+    hint: 'Palpite o placar de qualquer jogo que ainda não começou. Atenção: depois de enviar, o palpite é final e não pode ser alterado.',
     legExact: 'pts placar exato', legResult: 'pt resultado certo (vencedor / empate)', legZero: 'caso contrário',
     legBoxes: 'caixa central = empate (X-X) · laterais = um vencedor',
     group: 'Grupo',
@@ -39,6 +40,7 @@ const TXT = {
     saveBtn: (n) => `💾 Salvar meus palpites${n ? ` (${n})` : ''}`,
     savedMsg: '✓ Palpites salvos!',
     allStarted: 'Todos os jogos desta fase já começaram.',
+    confirmFinal: (n) => `Enviar ${n} palpite${n > 1 ? 's' : ''}? Depois de enviar não dá para alterar.`,
     failSubmit: 'Falha ao salvar',
   },
 };
@@ -158,10 +160,12 @@ const PV_CSS = `
 .pv-progress{text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(255,255,255,.7);margin-bottom:8px}
 `;
 
-function MatchRow({ m, value, onChange, phaseLocked }) {
+function MatchRow({ m, value, onChange, picked }) {
   const ready = matchReady(m);
   let center;
-  if (phaseLocked || !isMatchOpen(m)) center = <span className="mc-meta">🔒</span>;
+  // A submitted pick is FINAL — show it locked with the chosen score.
+  if (picked) center = <span className="mc-meta">{picked.home}–{picked.away} 🔒</span>;
+  else if (!isMatchOpen(m)) center = <span className="mc-meta">🔒</span>;
   else if (!ready) center = <span className="mc-meta">⏳</span>;
   else center = <MatchScoreSelector value={value} onChange={onChange} />;
   return <MatchCard m={m} centerOverride={center} />;
@@ -226,10 +230,11 @@ export default function PredictView({ matches = [], myPicks = {}, lockedPhases =
   const valueFor = (id) => (id in edits ? edits[id] : (myPicks[id] || null));
   const onChange = (id, score) => setEdits((e) => ({ ...e, [id]: score }));
 
-  // Completeness across the open + ready matches of the viewed phase.
+  // Still-pickable matches: open, teams known, and NOT already submitted (a pick
+  // is final once made).
   const fillable = useMemo(
-    () => phaseMatches.filter((m) => isMatchOpen(m) && matchReady(m)),
-    [phaseMatches],
+    () => phaseMatches.filter((m) => isMatchOpen(m) && matchReady(m) && !myPicks[m.id]),
+    [phaseMatches, myPicks],
   );
   const filledCount = fillable.filter((m) => valueFor(m.id)).length;
   const total = fillable.length;
@@ -240,12 +245,13 @@ export default function PredictView({ matches = [], myPicks = {}, lockedPhases =
 
   const finish = async () => {
     setFeedback(null);
-    // Submit only the open, ready matches that have a score — no confirmation,
-    // since nothing is locked permanently (you can edit until kickoff).
+    // Submit the filled, still-open matches. A pick is FINAL once sent, so confirm.
     const picks = fillable
       .map((m) => { const v = valueFor(m.id); return v ? { matchId: Number(m.id), home: Number(v.home), away: Number(v.away) } : null; })
       .filter(Boolean);
     if (!picks.length) return;
+    // eslint-disable-next-line no-alert
+    if (!window.confirm(T.confirmFinal(picks.length))) return;
     setSaving(true);
     try {
       if (onSubmit) await onSubmit(phase, picks);
@@ -342,7 +348,7 @@ export default function PredictView({ matches = [], myPicks = {}, lockedPhases =
               {open && (
                 <div className="pv-list">
                   {ms.map((m) => (
-                    <MatchRow key={m.id} m={m} value={valueFor(m.id)} phaseLocked={phaseLocked} onChange={(s) => onChange(m.id, s)} />
+                    <MatchRow key={m.id} m={m} value={valueFor(m.id)} picked={myPicks[m.id] || null} onChange={(s) => onChange(m.id, s)} />
                   ))}
                 </div>
               )}
@@ -352,7 +358,7 @@ export default function PredictView({ matches = [], myPicks = {}, lockedPhases =
       ) : (
         <div className="pv-ko-list">
           {phaseMatches.map((m) => (
-            <MatchRow key={m.id} m={m} value={valueFor(m.id)} phaseLocked={phaseLocked} onChange={(s) => onChange(m.id, s)} />
+            <MatchRow key={m.id} m={m} value={valueFor(m.id)} picked={myPicks[m.id] || null} onChange={(s) => onChange(m.id, s)} />
           ))}
         </div>
       )}
