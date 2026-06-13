@@ -6,6 +6,10 @@ describe('resolveScore', () => {
     expect(resolveScore({ homeVal: '2', awayVal: '1' })).toEqual({ home: 2, away: 1 });
     expect(resolveScore({ homeVal: '0', awayVal: '0' })).toEqual({ home: 0, away: 0 });
   });
+  test('a draw is just equal numbers (no special box)', () => {
+    expect(resolveScore({ homeVal: '1', awayVal: '1' })).toEqual({ home: 1, away: 1 });
+    expect(resolveScore({ homeVal: '3', awayVal: '3' })).toEqual({ home: 3, away: 3 });
+  });
   test('incomplete → null', () => {
     expect(resolveScore({ homeVal: '2', awayVal: '' })).toBeNull();
     expect(resolveScore({ homeVal: '', awayVal: '3' })).toBeNull();
