@@ -1,7 +1,45 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import {
   changedPicks, isMatchOpen, matchReady, phaseInfo, selectActivePhase,
+  draftKeyFor, pruneDraft, readDraft, writeDraft,
 } from './PredictView.jsx';
+
+// Minimal in-memory localStorage so the cache round-trip runs in any environment.
+beforeAll(() => {
+  if (typeof globalThis.localStorage === 'undefined') {
+    const store = new Map();
+    globalThis.localStorage = {
+      getItem: (k) => (store.has(k) ? store.get(k) : null),
+      setItem: (k, v) => store.set(k, String(v)),
+      removeItem: (k) => store.delete(k),
+    };
+  }
+});
+
+describe('draft cache', () => {
+  it('keys the draft per player', () => {
+    expect(draftKeyFor('p_1')).toBe('usam2026:draftPicks:p_1');
+    expect(draftKeyFor(null)).toBe('usam2026:draftPicks:anon');
+  });
+
+  it('pruneDraft drops submitted + incomplete entries', () => {
+    const edits = {
+      10: { home: 2, away: 1 }, // keep (in-progress)
+      11: { home: 0, away: 0 }, // submitted → drop
+      12: null,                 // incomplete → drop
+      13: { home: 1, away: null }, // incomplete → drop
+    };
+    expect(pruneDraft(edits, { 11: { home: 0, away: 0 } })).toEqual({ 10: { home: 2, away: 1 } });
+  });
+
+  it('round-trips through localStorage and clears when empty', () => {
+    const key = draftKeyFor('p_test');
+    writeDraft(key, { 5: { home: 3, away: 2 } });
+    expect(readDraft(key)).toEqual({ 5: { home: 3, away: 2 } });
+    writeDraft(key, {});
+    expect(readDraft(key)).toEqual({});
+  });
+});
 
 describe('changedPicks', () => {
   it('returns only new entries when myPicks is empty', () => {

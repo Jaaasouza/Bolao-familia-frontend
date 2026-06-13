@@ -1,9 +1,41 @@
 import { useState, useMemo, useEffect } from 'react';
 import { normalizeMatches } from '../components/teams/teamStats.js';
 import { useLang } from '../i18n/LanguageContext.jsx';
+import { getPlayerInfo } from '../auth/usePhoneAuth.js';
 import MatchScoreSelector from '../components/MatchScoreSelector.jsx';
 import MatchCard, { MATCH_CARD_EXTRA_CSS } from '../components/MatchCard.jsx';
 import GroupPredictionCard from '../components/GroupPredictionCard.jsx';
+
+// --- Draft cache: keep in-progress (filled but not yet submitted) picks in
+// localStorage, so an accidental refresh / closing the tab never loses them. ---
+const DRAFT_PREFIX = 'usam2026:draftPicks:';
+export function draftKeyFor(playerId) { return `${DRAFT_PREFIX}${playerId || 'anon'}`; }
+
+export function readDraft(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    const obj = raw ? JSON.parse(raw) : null;
+    return obj && typeof obj === 'object' ? obj : {};
+  } catch { return {}; }
+}
+export function writeDraft(key, edits) {
+  try {
+    if (edits && Object.keys(edits).length) localStorage.setItem(key, JSON.stringify(edits));
+    else localStorage.removeItem(key);
+  } catch { /* storage unavailable — ignore */ }
+}
+
+// Drop draft entries for matches that are already submitted (final) or empty, so
+// the cache only ever holds genuine in-progress picks.
+export function pruneDraft(edits = {}, submitted = {}) {
+  const out = {};
+  for (const [k, v] of Object.entries(edits)) {
+    if (!v || v.home == null || v.away == null) continue; // incomplete
+    if (submitted[k]) continue; // already sent → final
+    out[k] = v;
+  }
+  return out;
+}
 
 // Phase display names per language (PHASE_LONG in teamStats is English-only).
 const PHASE_NAME = {
@@ -173,10 +205,29 @@ export default function PredictView({ matches = [], myPicks = {}, lockedPhases =
   const { lang } = useLang();
   const T = TXT[lang] || TXT.en;
   const pn = PHASE_NAME[lang] || PHASE_NAME.en;
-  const [edits, setEdits] = useState({});
+  // Per-player draft cache key. Restore any in-progress picks saved before a
+  // refresh so the player never loses work.
+  const draftKey = useMemo(() => {
+    let id = 'anon';
+    try { const me = getPlayerInfo(); if (me && me.id) id = me.id; } catch { /* ignore */ }
+    return draftKeyFor(id);
+  }, []);
+  const [edits, setEdits] = useState(() => readDraft(draftKey));
   const [openGroup, setOpenGroup] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [saving, setSaving] = useState(false);
+
+  // Persist the draft on every change (cheap; only complete, unsent picks).
+  useEffect(() => { writeDraft(draftKey, edits); }, [draftKey, edits]);
+
+  // Once the server picks load (or after a submit), drop drafts for matches that
+  // are now final, keeping the cache to genuine in-progress work.
+  useEffect(() => {
+    setEdits((cur) => {
+      const next = pruneDraft(cur, myPicks);
+      return Object.keys(next).length === Object.keys(cur).length ? cur : next;
+    });
+  }, [myPicks]);
 
   // Bucket every fixture by phase (group / r32 / … / final), date-sorted.
   const byPhase = useMemo(() => {
@@ -254,6 +305,13 @@ export default function PredictView({ matches = [], myPicks = {}, lockedPhases =
     try {
       if (onSubmit) await onSubmit(phase, picks);
       setFeedback({ type: 'ok', msg: T.savedMsg });
+      // Sent picks are now final — clear them from the draft cache.
+      const sent = new Set(picks.map((p) => String(p.matchId)));
+      setEdits((cur) => {
+        const next = {};
+        for (const [k, v] of Object.entries(cur)) if (!sent.has(String(k))) next[k] = v;
+        return next;
+      });
     } catch (e) {
       setFeedback({ type: 'err', msg: (e && e.message) || T.failSubmit });
     } finally {
