@@ -145,15 +145,13 @@ const PV_CSS = `
 .pv-list{padding:0 12px 12px;display:flex;flex-direction:column;gap:10px}
 .pv-ko-list{display:flex;flex-direction:column;gap:10px;margin-top:6px}
 
-/* 3-box selector */
-.mss{display:flex;align-items:center;justify-content:center;gap:6px;position:relative}
-.mss-box{width:40px;height:44px;text-align:center;font-family:'Anton',sans-serif;font-size:22px;color:#fff;
-  background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.25);border-radius:10px}
-.mss-box:focus{outline:none;border-color:var(--gold,#ffd60a);background:rgba(255,214,10,.12)}
-.mss-box.draw{border-style:dashed}
-.mss-box:disabled{opacity:.3}
-.mss-clear{position:absolute;top:-14px;right:-6px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.3);
-  color:#fff;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;line-height:1}
+/* 2-dropdown scoreline picker (0–10 each) */
+.mss{display:flex;align-items:center;justify-content:center;gap:8px;position:relative}
+.mss-sel{width:54px;height:42px;text-align:center;font-family:'Anton',sans-serif;font-size:20px;color:#fff;
+  background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:0 4px;cursor:pointer}
+.mss-sel:focus{outline:none;border-color:var(--gold,#ffd60a);background:rgba(255,214,10,.12)}
+.mss-sel:disabled{opacity:.4}
+.mss-x{color:rgba(255,255,255,.5);font-size:14px;font-family:'JetBrains Mono',monospace}
 
 .pv-finish{position:sticky;bottom:8px;margin-top:14px}
 .pv-finish .primary[disabled]{opacity:.5;cursor:not-allowed}
