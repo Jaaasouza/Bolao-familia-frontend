@@ -29,7 +29,9 @@ export function mergeMessages(existing, incoming) {
 }
 
 const CHAT_CSS = `
-.chat-wrap{display:flex;flex-direction:column;height:300px}
+.chat-h{font-family:'Anton',sans-serif;font-size:14px;letter-spacing:.04em;color:var(--gold,#ffd60a);margin-bottom:3px}
+.chat-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.5);margin:0 0 8px}
+.chat-wrap{display:flex;flex-direction:column;height:180px}
 .chat-list{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:7px;padding:4px 2px}
 .chat-empty{margin:auto;color:rgba(255,255,255,.5);font-family:'JetBrains Mono',monospace;font-size:13px;text-align:center}
 .chat-msg{max-width:84%;padding:6px 10px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);align-self:flex-start}
@@ -129,8 +131,8 @@ export default function ChatView({ channel = 'live', title, hint }) {
   return (
     <div className="card">
       <style>{CHAT_CSS}</style>
-      <h2>{title || t('chatRankTitle')}</h2>
-      {hint && <p className="hint">{hint}</p>}
+      <div className="chat-h">{title || t('chatRankTitle')}</div>
+      {hint && <div className="chat-sub">{hint}</div>}
 
       <div className="chat-wrap">
         <div className="chat-list" ref={listRef} onScroll={onScroll}>
