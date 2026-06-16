@@ -2,8 +2,9 @@
 // list scrolls up/down. Reused on two channels:
 //   - channel="live"    → in-game banter; the backend wipes it when a game ends.
 //   - channel="ranking" → leaderboard chat; persists.
-// Logged-in participants post and read; the list polls every few seconds.
-import { useState, useEffect, useRef, useCallback } from 'react';
+// Supports @mentions: type "@" + a name to autocomplete a participant; the
+// mentioned player gets a push notification (if they enabled notifications).
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useLang } from '../i18n/LanguageContext.jsx';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { API } from '../lib/api.js';
@@ -28,6 +29,53 @@ export function mergeMessages(existing, incoming) {
   );
 }
 
+// The active "@token" being typed before the caret, or null. Used to drive the
+// mention autocomplete. The "@" must start a word (be at the start or follow a
+// space) and the token can't contain a space.
+export function mentionQuery(text, caret) {
+  const upto = String(text == null ? '' : text).slice(0, caret);
+  const at = upto.lastIndexOf('@');
+  if (at < 0) return null;
+  const before = at === 0 ? ' ' : upto[at - 1];
+  if (!/\s/.test(before)) return null;
+  const frag = upto.slice(at + 1);
+  if (/\s/.test(frag)) return null;
+  return { query: frag, start: at, end: caret };
+}
+
+// Player ids whose "@Name" appears in the text (case-insensitive).
+export function resolveMentionIds(text, players = []) {
+  const low = String(text || '').toLowerCase();
+  const ids = [];
+  for (const p of players) {
+    if (p && p.name && low.includes(`@${String(p.name).toLowerCase()}`)) ids.push(p.id);
+  }
+  return [...new Set(ids)];
+}
+
+// Render a message body with @mentions highlighted. `names` should be sorted
+// longest-first so multi-word names match greedily.
+function renderBody(body, names) {
+  const text = String(body || '');
+  const nodes = [];
+  let i = 0; let key = 0;
+  while (i < text.length) {
+    const at = text.indexOf('@', i);
+    if (at < 0) { nodes.push(text.slice(i)); break; }
+    if (at > i) nodes.push(text.slice(i, at));
+    const rest = text.slice(at + 1).toLowerCase();
+    const match = names.find((n) => rest.startsWith(n.toLowerCase()));
+    if (match) {
+      nodes.push(<span className="chat-at" key={key++}>@{text.slice(at + 1, at + 1 + match.length)}</span>);
+      i = at + 1 + match.length;
+    } else {
+      nodes.push('@');
+      i = at + 1;
+    }
+  }
+  return nodes;
+}
+
 const CHAT_CSS = `
 .chat-block{margin:8px 0 14px;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:12px}
 .chat-h{font-family:'Anton',sans-serif;font-size:14px;letter-spacing:.04em;color:var(--gold,#ffd60a);margin-bottom:3px}
@@ -44,9 +92,14 @@ const CHAT_CSS = `
 .chat-del{margin-left:auto;background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:12px;line-height:1}
 .chat-del:hover{color:#ff6b6b}
 .chat-body{font-size:14px;line-height:1.3;word-wrap:break-word;white-space:pre-wrap}
+.chat-at{color:var(--gold,#ffd60a);font-weight:700}
 .chat-form{display:flex;gap:8px;margin-top:8px}
-.chat-input{flex:1;box-sizing:border-box;font-size:16px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff}
+.chat-inwrap{flex:1;position:relative}
+.chat-input{width:100%;box-sizing:border-box;font-size:16px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff}
 .chat-input:focus{outline:none;border-color:var(--gold,#ffd60a)}
+.chat-suggest{position:absolute;left:0;right:0;bottom:calc(100% + 6px);background:#0d1b3a;border:1px solid rgba(255,255,255,.2);border-radius:10px;overflow:hidden;z-index:30;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.chat-suggest-item{display:block;width:100%;text-align:left;background:none;border:none;color:#fff;padding:9px 12px;cursor:pointer;font-size:14px}
+.chat-suggest-item:hover,.chat-suggest-item.on{background:rgba(255,214,10,.15)}
 .chat-err{color:#ff6b6b;font-size:13px;font-family:'JetBrains Mono',monospace;margin-top:6px}
 `;
 
@@ -57,14 +110,30 @@ export default function ChatView({ channel = 'live', title, hint, bare = false }
   const me = getPlayerInfo();
 
   const [messages, setMessages] = useState([]);
+  const [players, setPlayers] = useState([]);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const [err, setErr] = useState('');
+  const [suggest, setSuggest] = useState(null); // { query, start, end } | null
   const listRef = useRef(null);
+  const inputRef = useRef(null);
   const atBottomRef = useRef(true);
 
-  // Full refresh each poll (≤100 rows) so server-side wipes and admin deletes
-  // reflect without a manual reload.
+  // Names sorted longest-first for greedy @mention highlighting.
+  const names = useMemo(
+    () => players.map((p) => p.name).filter(Boolean).sort((a, b) => b.length - a.length),
+    [players],
+  );
+
+  // Roster for @mentions (everyone on the leaderboard).
+  useEffect(() => {
+    let alive = true;
+    API.scoreLeaderboard()
+      .then((d) => { if (alive) setPlayers((d.leaderboard || []).map((r) => ({ id: r.id, name: r.name }))); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
+
   const load = useCallback(async () => {
     if (!token) return;
     try {
@@ -90,7 +159,6 @@ export default function ChatView({ channel = 'live', title, hint, bare = false }
     return () => clearInterval(id);
   }, [token, load]);
 
-  // Auto-scroll to the newest message, but only if already at the bottom.
   useEffect(() => {
     const el = listRef.current;
     if (el && atBottomRef.current) el.scrollTop = el.scrollHeight;
@@ -102,15 +170,44 @@ export default function ChatView({ channel = 'live', title, hint, bare = false }
     atBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
   };
 
+  const suggestions = useMemo(() => {
+    if (!suggest) return [];
+    const q = suggest.query.toLowerCase();
+    return players
+      .filter((p) => p.name && (!me || p.id !== me.id) && p.name.toLowerCase().includes(q))
+      .slice(0, 6);
+  }, [suggest, players, me]);
+
+  const onType = (e) => {
+    const v = e.target.value;
+    setText(v);
+    if (err) setErr('');
+    setSuggest(mentionQuery(v, e.target.selectionStart ?? v.length));
+  };
+
+  const pickMention = (p) => {
+    if (!suggest) return;
+    const next = `${text.slice(0, suggest.start)}@${p.name} ${text.slice(suggest.end)}`;
+    setText(next);
+    setSuggest(null);
+    const caret = suggest.start + p.name.length + 2; // '@' + name + ' '
+    requestAnimationFrame(() => {
+      const el = inputRef.current;
+      if (el) { el.focus(); try { el.setSelectionRange(caret, caret); } catch { /* ignore */ } }
+    });
+  };
+
   const send = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
     const body = text.trim();
     if (!body || sending) return;
     setSending(true);
     setErr('');
+    setSuggest(null);
     atBottomRef.current = true;
     try {
-      const res = await API.chatPost(body.slice(0, MAX_LEN), token, channel);
+      const mentions = resolveMentionIds(body, players);
+      const res = await API.chatPost(body.slice(0, MAX_LEN), token, channel, mentions);
       if (res && res.message) setMessages((cur) => mergeMessages(cur, [res.message]));
       setText('');
     } catch (e2) {
@@ -151,7 +248,7 @@ export default function ChatView({ channel = 'live', title, hint, bare = false }
                       <button type="button" className="chat-del" title="delete" onClick={() => remove(m.id)}>✕</button>
                     )}
                   </div>
-                  <div className="chat-body">{m.body}</div>
+                  <div className="chat-body">{renderBody(m.body, names)}</div>
                 </div>
               );
             })
@@ -159,11 +256,25 @@ export default function ChatView({ channel = 'live', title, hint, bare = false }
         </div>
 
         <form className="chat-form" onSubmit={send}>
-          <input
-            className="chat-input" type="text" maxLength={MAX_LEN}
-            placeholder={t('chatPlaceholder')} value={text}
-            onChange={(e) => setText(e.target.value)} disabled={sending}
-          />
+          <div className="chat-inwrap">
+            {suggestions.length > 0 && (
+              <div className="chat-suggest">
+                {suggestions.map((p) => (
+                  <button
+                    key={p.id} type="button" className="chat-suggest-item"
+                    onMouseDown={(ev) => { ev.preventDefault(); pickMention(p); }}
+                  >
+                    {p.name}
+                  </button>
+                ))}
+              </div>
+            )}
+            <input
+              ref={inputRef} className="chat-input" type="text" maxLength={MAX_LEN}
+              placeholder={t('chatPlaceholder')} value={text}
+              onChange={onType} onBlur={() => setTimeout(() => setSuggest(null), 120)} disabled={sending}
+            />
+          </div>
           <button type="submit" className="primary" disabled={sending || !text.trim()}>
             {t('chatSend')}
           </button>

@@ -114,7 +114,7 @@ export const API = {
   // 'ranking' persists). `since` (ISO) fetches only newer messages.
   chatList: (token, channel = 'live', since) =>
     api(`/api/chat?channel=${encodeURIComponent(channel)}${since ? `&since=${encodeURIComponent(since)}` : ''}`, { token }),
-  chatPost: (body, token, channel = 'live') => api('/api/chat', { method: 'POST', body: { body, channel }, token }),
+  chatPost: (body, token, channel = 'live', mentions = []) => api('/api/chat', { method: 'POST', body: { body, channel, mentions }, token }),
   chatDelete: (id) => api(`/api/chat/${encodeURIComponent(id)}`, { method: 'DELETE', auth: true }),
 };
 
