@@ -110,6 +110,12 @@ export const API = {
   pushKey: () => api('/api/push/key'),
   pushSubscribe: (subscription, lang, token) => api('/api/push/subscribe', { method: 'POST', body: { subscription, lang }, token }),
   pushUnsubscribe: (endpoint, token) => api('/api/push/unsubscribe', { method: 'POST', body: { endpoint }, token }),
+  // Pool chat — player-scoped, per channel ('live' wipes when a game ends,
+  // 'ranking' persists). `since` (ISO) fetches only newer messages.
+  chatList: (token, channel = 'live', since) =>
+    api(`/api/chat?channel=${encodeURIComponent(channel)}${since ? `&since=${encodeURIComponent(since)}` : ''}`, { token }),
+  chatPost: (body, token, channel = 'live') => api('/api/chat', { method: 'POST', body: { body, channel }, token }),
+  chatDelete: (id) => api(`/api/chat/${encodeURIComponent(id)}`, { method: 'DELETE', auth: true }),
 };
 
 export default api;

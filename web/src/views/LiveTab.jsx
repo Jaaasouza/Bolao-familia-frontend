@@ -6,6 +6,7 @@ import { API } from '../lib/api.js';
 import { normalizeMatches } from '../components/teams/teamStats.js';
 import { getPlayerToken } from '../auth/usePhoneAuth.js';
 import LiveMatch from '../components/LiveMatch.jsx';
+import ChatView from './ChatView.jsx';
 import { useLang } from '../i18n/LanguageContext.jsx';
 
 const LIVE = new Set(['IN_PLAY', 'PAUSED', 'LIVE']);
@@ -18,7 +19,7 @@ const T = {
 };
 
 export default function LiveTab({ matches: initial = [] }) {
-  const { lang } = useLang();
+  const { lang, t: tr } = useLang();
   const t = T[lang] || T.en;
   const [matches, setMatches] = useState(initial);
   const [myPicks, setMyPicks] = useState({});
@@ -61,7 +62,8 @@ export default function LiveTab({ matches: initial = [] }) {
   const m = featured[Math.min(sel, featured.length - 1)] || null;
 
   return (
-    <div className="card">
+    <>
+      <div className="card">
       <style>{LT_CSS}</style>
 
       {/* selector when several games are live at once */}
@@ -78,7 +80,11 @@ export default function LiveTab({ matches: initial = [] }) {
       )}
 
       {m ? <LiveMatch m={m} pred={myPicks[m.id] || null} /> : <p className="hint">{t.none}</p>}
-    </div>
+      </div>
+
+      {/* In-game chat — clears when the game ends. */}
+      <ChatView channel="live" title={tr('chatLiveTitle')} hint={tr('chatLiveHint')} />
+    </>
   );
 }
 
