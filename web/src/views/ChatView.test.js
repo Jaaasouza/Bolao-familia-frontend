@@ -1,5 +1,27 @@
 import { describe, it, expect } from 'vitest';
-import { mergeMessages, timeLabel } from './ChatView.jsx';
+import { mergeMessages, timeLabel, mentionQuery, resolveMentionIds } from './ChatView.jsx';
+
+describe('mentionQuery', () => {
+  it('detects the active @token before the caret', () => {
+    expect(mentionQuery('oi @Mar', 7)).toEqual({ query: 'Mar', start: 3, end: 7 });
+    expect(mentionQuery('@Ana', 4)).toMatchObject({ query: 'Ana', start: 0 });
+  });
+  it('returns null when not in a mention', () => {
+    expect(mentionQuery('oi pessoal', 10)).toBeNull();
+    expect(mentionQuery('email a@b', 9)).toBeNull(); // @ not starting a word
+    expect(mentionQuery('@Ana fala', 9)).toBeNull(); // space after the token
+  });
+});
+
+describe('resolveMentionIds', () => {
+  const players = [{ id: 'p1', name: 'Marcelo' }, { id: 'p2', name: 'Joao Souza' }, { id: 'p3', name: 'Ana' }];
+  it('matches @Name occurrences (case-insensitive, multi-word)', () => {
+    expect(resolveMentionIds('oi @Marcelo e @joao souza', players).sort()).toEqual(['p1', 'p2']);
+  });
+  it('returns [] when there are no mentions', () => {
+    expect(resolveMentionIds('sem mencao aqui', players)).toEqual([]);
+  });
+});
 
 describe('mergeMessages', () => {
   it('de-duplicates by id and keeps time order', () => {
