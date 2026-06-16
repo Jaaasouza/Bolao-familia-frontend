@@ -29,6 +29,7 @@ export function mergeMessages(existing, incoming) {
 }
 
 const CHAT_CSS = `
+.chat-block{margin:8px 0 14px;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:12px}
 .chat-h{font-family:'Anton',sans-serif;font-size:14px;letter-spacing:.04em;color:var(--gold,#ffd60a);margin-bottom:3px}
 .chat-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.5);margin:0 0 8px}
 .chat-wrap{display:flex;flex-direction:column;height:180px}
@@ -49,7 +50,7 @@ const CHAT_CSS = `
 .chat-err{color:#ff6b6b;font-size:13px;font-family:'JetBrains Mono',monospace;margin-top:6px}
 `;
 
-export default function ChatView({ channel = 'live', title, hint }) {
+export default function ChatView({ channel = 'live', title, hint, bare = false }) {
   const { t, lang } = useLang();
   const { isAdmin } = useAuth();
   const token = getPlayerToken();
@@ -129,7 +130,7 @@ export default function ChatView({ channel = 'live', title, hint }) {
   if (!token) return null;
 
   return (
-    <div className="card">
+    <div className={bare ? 'chat-block' : 'card'}>
       <style>{CHAT_CSS}</style>
       <div className="chat-h">{title || t('chatRankTitle')}</div>
       {hint && <div className="chat-sub">{hint}</div>}

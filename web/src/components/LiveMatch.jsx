@@ -13,7 +13,9 @@ const AWAY_COLOR = '#ffd60a';
 const T = { en: { yourPick: 'Your pick:' }, pt: { yourPick: 'Seu palpite:' } };
 
 // `pred` (optional) = the viewer's pick for this match: { home, away }.
-export default function LiveMatch({ m, pred = null }) {
+// `afterPick` (optional) = node rendered between the pick and the live feed
+// (used to slot the in-game chat there).
+export default function LiveMatch({ m, pred = null, afterPick = null }) {
   const { lang } = useLang();
   const t = T[lang] || T.en;
   if (!m) return null;
@@ -28,6 +30,9 @@ export default function LiveMatch({ m, pred = null }) {
 
       {/* 2) your pick for this game */}
       {pred && <div className="lm-pick">{t.yourPick} <b>{pred.home}–{pred.away}</b></div>}
+
+      {/* 2b) optional slot between the pick and the live feed (in-game chat) */}
+      {afterPick}
 
       {/* 3) live happenings — up top, the most time-sensitive part */}
       <LiveFeed liveEvents={m.liveEvents} status={m.status} minute={m.minute}
