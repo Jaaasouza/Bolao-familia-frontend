@@ -62,8 +62,7 @@ export default function LiveTab({ matches: initial = [] }) {
   const m = featured[Math.min(sel, featured.length - 1)] || null;
 
   return (
-    <>
-      <div className="card">
+    <div className="card">
       <style>{LT_CSS}</style>
 
       {/* selector when several games are live at once */}
@@ -79,12 +78,13 @@ export default function LiveTab({ matches: initial = [] }) {
         </div>
       )}
 
-      {m ? <LiveMatch m={m} pred={myPicks[m.id] || null} /> : <p className="hint">{t.none}</p>}
-      </div>
-
-      {/* In-game chat — clears when the game ends. */}
-      <ChatView channel="live" title={tr('chatLiveTitle')} hint={tr('chatLiveHint')} />
-    </>
+      {m ? (
+        <LiveMatch
+          m={m} pred={myPicks[m.id] || null}
+          afterPick={<ChatView channel="live" bare title={tr('chatLiveTitle')} hint={tr('chatLiveHint')} />}
+        />
+      ) : <p className="hint">{t.none}</p>}
+    </div>
   );
 }
 
