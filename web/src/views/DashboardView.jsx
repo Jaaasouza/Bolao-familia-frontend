@@ -14,6 +14,7 @@ import { useLang } from '../i18n/LanguageContext.jsx';
 import MatchCard, { MATCH_CARD_EXTRA_CSS } from '../components/MatchCard.jsx';
 import GroupPredictionCard from '../components/GroupPredictionCard.jsx';
 import CountdownBar from '../components/CountdownBar.jsx';
+import ChatView from './ChatView.jsx';
 
 // Phase names + all Dashboard copy, EN/PT.
 const PHASE_NAME = {
@@ -265,6 +266,7 @@ function MyPicks({ matches, myPicks, phase }) {
 
 export default function DashboardView({ matches = [], myPicks = {}, standings = {} }) {
   const { T } = useDash();
+  const { t } = useLang();
   const [rows, setRows] = useState([]);
   const me = getPlayerInfo();
 
@@ -309,6 +311,9 @@ export default function DashboardView({ matches = [], myPicks = {}, standings = 
       {feature
         ? <FeatureMatch m={feature} pred={predOf(feature.id)} />
         : <p className="dash-empty">{T.noMatches}</p>}
+
+      {/* Persistent pool chat (same 'ranking' channel — never auto-clears). */}
+      <ChatView channel="ranking" bare title={t('chatRankTitle')} hint={t('chatRankHint')} />
 
       <div className="dash-grid2">
         <RankCard rows={rows} meId={me?.id} />
