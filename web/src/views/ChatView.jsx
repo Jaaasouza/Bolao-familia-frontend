@@ -93,8 +93,9 @@ const CHAT_CSS = `
 .chat-del:hover{color:#ff6b6b}
 .chat-body{font-size:14px;line-height:1.3;word-wrap:break-word;white-space:pre-wrap}
 .chat-at{color:var(--gold,#ffd60a);font-weight:700}
-.chat-form{display:flex;gap:8px;margin-top:8px}
-.chat-inwrap{flex:1;position:relative}
+.chat-form{display:flex;gap:8px;margin-top:8px;align-items:stretch}
+.chat-form .primary{width:auto;flex:0 0 auto;padding:10px 16px;font-size:14px;border-radius:10px;white-space:nowrap}
+.chat-inwrap{flex:1 1 auto;min-width:0;position:relative}
 .chat-input{width:100%;box-sizing:border-box;font-size:16px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff}
 .chat-input:focus{outline:none;border-color:var(--gold,#ffd60a)}
 .chat-suggest{position:absolute;left:0;right:0;bottom:calc(100% + 6px);background:#0d1b3a;border:1px solid rgba(255,255,255,.2);border-radius:10px;overflow:hidden;z-index:30;box-shadow:0 8px 24px rgba(0,0,0,.5)}
