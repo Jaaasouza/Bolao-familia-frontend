@@ -231,7 +231,6 @@ export default function ChatView({ channel = 'live', title, hint, bare = false }
     <div className={bare ? 'chat-block' : 'card'}>
       <style>{CHAT_CSS}</style>
       <div className="chat-h">{title || t('chatRankTitle')}</div>
-      {hint && <div className="chat-sub">{hint}</div>}
 
       <div className="chat-wrap">
         <div className="chat-list" ref={listRef} onScroll={onScroll}>
