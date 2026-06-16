@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { leaderboard } from '../lib/scoring.js';
 import { useLang } from '../i18n/LanguageContext.jsx';
 import { FLAGS } from '../data/teamMeta.js';
+import ChatView from './ChatView.jsx';
 
 // Leaderboard / Rank tab — React port of renderRanking() from
 // usam-world-cup-2026.html. Pixel parity comes from the exact CSS classes /
@@ -141,6 +142,9 @@ export default function RankView({ players = {}, phases = {}, standings = {}, ma
           })}
         </div>
       )}
+
+      {/* Pool chat — persists (does not clear when a game ends). */}
+      <ChatView channel="ranking" title={t('chatRankTitle')} hint={t('chatRankHint')} />
     </div>
   );
 }
