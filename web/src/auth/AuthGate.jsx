@@ -1,10 +1,9 @@
-// Entry gate. Two steps:
-//   1) LANGUAGE — pick Português or English (only the first time; the choice is
-//      persisted, so returning visitors skip straight to step 2). From here on
-//      the whole app — including push notifications — is in that language.
-//   2) PHONE — pick the country (Brasil / USA), then enter the number. A known
-//      phone goes straight in; an unknown phone reveals the name fields (First +
-//      Last) and registers.
+// Entry gate — PHONE FIRST. The very first thing we ask is the phone:
+//   - a KNOWN phone logs straight in (returning players land on their Dashboard;
+//     no name needed);
+//   - an UNKNOWN phone reveals the name fields (First + Last) to register.
+// Language defaults to Portuguese and can be switched anytime in the footer, so
+// there's no separate language step blocking the phone.
 // Wraps the app so nothing shows until the player is identified.
 import { useState } from 'react';
 import { usePlayerAuth } from './PlayerAuthContext.jsx';
@@ -12,16 +11,6 @@ import { normalizePhone, PHONE_COUNTRIES, DEFAULT_PHONE_COUNTRY } from './usePho
 import { useLang } from '../i18n/LanguageContext.jsx';
 import { Logo } from '../components/Logo.jsx';
 import { APP_NAME } from '../config/app.js';
-
-// Remembers that the visitor has made an explicit language choice, so we don't
-// nag them with the language step on every visit before they're logged in.
-const LANG_CHOSEN_KEY = 'usam_lang_chosen';
-function langAlreadyChosen() {
-  try { return localStorage.getItem(LANG_CHOSEN_KEY) === '1'; } catch { return false; }
-}
-function rememberLangChosen() {
-  try { localStorage.setItem(LANG_CHOSEN_KEY, '1'); } catch { /* ignore */ }
-}
 
 const GATE_CSS = `
 .gate-bg{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
@@ -36,19 +25,11 @@ const GATE_CSS = `
 .gate-pretty{font-size:13px;color:rgba(255,255,255,.55);min-height:16px}
 .gate-err{color:#ff6b6b;font-size:13px;font-family:'JetBrains Mono',monospace}
 .gate-new{background:rgba(255,214,10,.08);border:1px solid rgba(255,214,10,.3);border-radius:10px;padding:10px 12px;font-size:13px;color:#fff}
-.gate-langs{display:flex;flex-direction:column;gap:12px;margin-top:6px}
-.gate-lang-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;box-sizing:border-box;
-  font-size:18px;padding:16px;border-radius:14px;border:1px solid rgba(255,255,255,.2);
-  background:rgba(255,255,255,.06);color:#fff;cursor:pointer;font-family:'Archivo Black',sans-serif}
-.gate-lang-btn:hover{border-color:var(--gold,#ffd60a)}
-.gate-hint{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.5);text-align:center;margin-top:12px}
 `;
 
 export default function AuthGate({ children }) {
   const { token, login } = usePlayerAuth();
-  const { t, setLang } = useLang();
-  // Start on the language step unless the visitor already picked one before.
-  const [step, setStep] = useState(() => (langAlreadyChosen() ? 'phone' : 'lang'));
+  const { t } = useLang();
   const [country, setCountry] = useState(DEFAULT_PHONE_COUNTRY);
   const [phone, setPhone] = useState('');
   const [first, setFirst] = useState('');
@@ -63,12 +44,6 @@ export default function AuthGate({ children }) {
   const norm = normalizePhone(phone, country);
   const fullName = `${first.trim()} ${last.trim()}`.trim();
 
-  const chooseLang = (next) => {
-    setLang(next);
-    rememberLangChosen();
-    setStep('phone');
-  };
-
   const submit = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
     setErr('');
@@ -76,7 +51,8 @@ export default function AuthGate({ children }) {
     if (needName && !fullName) { setErr(t('gateNeedName')); return; }
     setBusy(true);
     try {
-      // First attempt: phone only. If new and we don't have a name yet, reveal it.
+      // First attempt: phone only. A known phone logs straight in; if it's new
+      // (404) and we don't have a name yet, reveal the registration fields.
       await login({ name: fullName, phone: norm.digits });
     } catch (e2) {
       const status = e2 && (e2.status || e2.statusCode);
@@ -99,79 +75,62 @@ export default function AuthGate({ children }) {
       <div className="gate-card card">
         <div className="gate-logo"><Logo size={72} /></div>
 
-        {step === 'lang' ? (
-          <>
-            <h2 style={{ marginTop: 0, textAlign: 'center' }}>{t('gateLangTitle')}</h2>
-            <div className="gate-langs">
-              <button type="button" className="gate-lang-btn" onClick={() => chooseLang('pt')}>
-                🇧🇷 {t('gatePortuguese')}
-              </button>
-              <button type="button" className="gate-lang-btn" onClick={() => chooseLang('en')}>
-                🇺🇸 {t('gateEnglish')}
-              </button>
+        <h2 style={{ marginTop: 0 }}>{APP_NAME}</h2>
+        <p className="hint">{t('gatePhonePrompt')}</p>
+        <form className="gate-form" onSubmit={submit} noValidate>
+          <div>
+            <label>{t('gatePhoneLabel')}</label>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <select
+                className="gate-input" style={{ width: 'auto', flex: '0 0 auto' }}
+                value={country}
+                onChange={(e) => { setCountry(e.target.value); if (err) setErr(''); }}
+                disabled={busy} aria-label="País / Country"
+              >
+                {PHONE_COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>{c.flag} +{c.dial}</option>
+                ))}
+              </select>
+              <input
+                className="gate-input" type="tel" inputMode="tel" autoComplete="tel"
+                placeholder={countryMeta.example} value={phone}
+                onChange={(e) => { setPhone(e.target.value); if (err) setErr(''); }}
+                disabled={busy} autoFocus
+              />
             </div>
-            <p className="gate-hint">{t('gateLangHint')}</p>
-          </>
-        ) : (
-          <>
-            <h2 style={{ marginTop: 0 }}>{APP_NAME}</h2>
-            <p className="hint">{t('gatePhonePrompt')}</p>
-            <form className="gate-form" onSubmit={submit} noValidate>
-              <div>
-                <label>{t('gatePhoneLabel')}</label>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <select
-                    className="gate-input" style={{ width: 'auto', flex: '0 0 auto' }}
-                    value={country}
-                    onChange={(e) => { setCountry(e.target.value); if (err) setErr(''); }}
-                    disabled={busy} aria-label="País / Country"
-                  >
-                    {PHONE_COUNTRIES.map((c) => (
-                      <option key={c.code} value={c.code}>{c.flag} +{c.dial}</option>
-                    ))}
-                  </select>
+            <div className="gate-pretty">{norm ? norm.pretty : ' '}</div>
+          </div>
+
+          {needName && (
+            <div>
+              <div className="gate-new">{t('gateNewHere')}</div>
+              <div className="gate-names" style={{ marginTop: 10 }}>
+                <div>
+                  <label>{t('gateFirstName')}</label>
                   <input
-                    className="gate-input" type="tel" inputMode="tel" autoComplete="tel"
-                    placeholder={countryMeta.example} value={phone}
-                    onChange={(e) => { setPhone(e.target.value); if (err) setErr(''); }}
-                    disabled={busy}
+                    className="gate-input" type="text" autoComplete="given-name"
+                    placeholder="João" maxLength={24} value={first}
+                    onChange={(e) => setFirst(e.target.value)} disabled={busy} autoFocus
                   />
                 </div>
-                <div className="gate-pretty">{norm ? norm.pretty : ' '}</div>
-              </div>
-
-              {needName && (
                 <div>
-                  <div className="gate-new">{t('gateNewHere')}</div>
-                  <div className="gate-names" style={{ marginTop: 10 }}>
-                    <div>
-                      <label>{t('gateFirstName')}</label>
-                      <input
-                        className="gate-input" type="text" autoComplete="given-name"
-                        placeholder="João" maxLength={24} value={first}
-                        onChange={(e) => setFirst(e.target.value)} disabled={busy} autoFocus
-                      />
-                    </div>
-                    <div>
-                      <label>{t('gateLastName')}</label>
-                      <input
-                        className="gate-input" type="text" autoComplete="family-name"
-                        placeholder="Silva" maxLength={24} value={last}
-                        onChange={(e) => setLast(e.target.value)} disabled={busy}
-                      />
-                    </div>
-                  </div>
+                  <label>{t('gateLastName')}</label>
+                  <input
+                    className="gate-input" type="text" autoComplete="family-name"
+                    placeholder="Silva" maxLength={24} value={last}
+                    onChange={(e) => setLast(e.target.value)} disabled={busy}
+                  />
                 </div>
-              )}
+              </div>
+            </div>
+          )}
 
-              {err && <div className="gate-err" role="alert">{err}</div>}
+          {err && <div className="gate-err" role="alert">{err}</div>}
 
-              <button type="submit" className="primary" disabled={busy}>
-                {busy ? '…' : needName ? t('gateRegister') : t('gateContinue')}
-              </button>
-            </form>
-          </>
-        )}
+          <button type="submit" className="primary" disabled={busy}>
+            {busy ? '…' : needName ? t('gateRegister') : t('gateContinue')}
+          </button>
+        </form>
       </div>
     </div>
   );
