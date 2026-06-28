@@ -94,22 +94,32 @@ remain in force.
 
 ---
 
-## ⚠️ This repo today (reality — differs from the reference stack)
+## Current state of this repo
 
-The tech-stack and repo-notes sections above describe the reference setup
-(usam-frontend + usam-mes-backend). **This Copa repo does not match it yet:**
+This frontend matches the reference stack:
 
-- **Frontend is NOT Vite + React.** It is a single static
-  `usam-world-cup-2026.html` (~3.6k lines, vanilla JS), deployed on Vercel.
-  There is no `App.jsx`, no `api()` wrapper, no `VITE_API_BASE`, no build step.
-- **Auth is `x-admin-token`** (shared secret), not JWT bearer.
-- The serverless backend code (`state.js`, `players.js`, `sync-matches.js`, …)
-  currently sits loose in this repo's root and imports `lib/kv.js` /
-  `lib/football-data.js` that **do not exist** — it is incomplete. The
-  `usam-fifa-world-cup-backend` repo is empty.
-- **No CI** (`.github/workflows/`), **no tests**, **no `railway.json`**, no
-  Postgres.
+- **Vite + React 18** SPA under `web/`. Entry: `web/src/main.jsx` →
+  `AuthProvider` → `PlayerAuthProvider` → `AuthGate` → `App.jsx`.
+- **API wrapper** at `web/src/lib/api.js` — bearer-token JWT + 10s timeout +
+  `import.meta.env.VITE_API_BASE`.
+- **Two-tier auth**: admin PIN (`POST /api/auth/login`) and player phone
+  (`POST /api/auth/phone`). Tokens stored as `usam2026:token` and
+  `usam2026:ptoken` in localStorage.
+- **i18n**: PT-BR (default) + EN, via `web/src/i18n/strings.js` +
+  `LanguageContext`. `usam_lang` in localStorage.
+- **Push notifications**: service worker at `web/public/sw.js`. Subscribe flow
+  in `web/src/lib/push.js`: GET VAPID key → subscribe → POST `/api/push/subscribe`.
+- **CI**: GitHub Actions runs `vitest` + `vite build` on Node 18 + 20 per PR.
+- **Deploy**: Vercel auto-deploys on merge to main (`vercel.json` rewrites
+  everything to `/index.html` for SPA routing).
 
-Operational setup steps live in `SETUP.md`. Before feature work, expect Claude
-to flag/propose: adding CI, a test runner, and deciding whether to migrate to
-the reference stack or consolidate the backend into its own repo.
+The companion backend lives at `Jaaasouza/-Bolao-familia-backend` (Node +
+Express + Postgres, deployed on Railway). The frontend talks to it via
+`VITE_API_BASE` set in the Vercel project's env vars.
+
+## Archive
+
+The root contains `archive/usam-world-cup-2026.html` — a deprecated standalone
+prototype (vanilla JS, localStorage, direct football-data.org calls). Kept for
+reference only. **Don't touch it for product work.** All current code lives in
+`web/`.

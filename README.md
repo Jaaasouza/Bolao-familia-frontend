@@ -1,128 +1,93 @@
-# USAM World Cup 2026 — Backend (Minimal)
+# Bolão Família — World Cup 2026 (Frontend)
 
-Backend 24/7 no Vercel que consulta a **football-data.org** a cada 1 minuto e armazena os placares no Vercel KV. O HTML só LÊ deste backend — quota é independente do número de usuários.
+A React + Vite single-page app for the Bolão Família pool. Players predict the
+exact scoreline of every World Cup match; the leaderboard is computed by the
+backend so everyone agrees on the numbers.
 
-**Escopo intencionalmente minimalista:**
-- ✅ Placar e status dos jogos
-- ✅ Fase do torneio (grupo / R16 / QF / SF / final)
-- ✅ Players, phases, standings (gerenciados via admin)
-- ❌ Sem gols/cartões/substituições por jogador
-- ❌ Sem escalações
-- ❌ Sem squads
+The companion backend (Node + Express + Postgres on Railway) lives at
+[`Jaaasouza/-Bolao-familia-backend`](https://github.com/Jaaasouza/-Bolao-familia-backend).
+This repo only contains the web client; it talks to the backend via
+`VITE_API_BASE`.
 
----
+## Stack
 
-## 📊 API usada
+- **Vite 5** + **React 18** + **vitest**
+- **Auth**: bearer-token JWT — admin PIN (`/api/auth/login`) and player phone
+  (`/api/auth/phone`)
+- **i18n**: PT-BR (default) + EN, via `LanguageContext`
+- **Web Push**: service worker (`public/sw.js`) + VAPID
+- **Deploy**: Vercel (auto on push to `main`)
 
-### football-data.org (única API)
+## Local development
 
-**Limite (free tier):** 10 requisições por **MINUTO**
-
-**Nosso uso:**
-- Cron `sync-matches` roda **a cada 1 min** (mínimo do Vercel free)
-- Cada execução faz **1 chamada**
-- Resultado: **1 req/min = 10% do limite** ✅
-
-**Margem de segurança:**
-- Usamos 1 de 10 reqs/min
-- Sobram **9 reqs/min** de buffer pra:
-  - Botão "Sync Now" manual no admin
-  - Refresh de página
-  - Imprevistos
-
-**Proteções no código (defensivas):**
-- Sliding window: pára em 6/10 reqs por minuto
-- Detecta erro 429 e pausa por 90 segundos
-- CORS aberto pra qualquer cliente ler
-
----
-
-## 🚀 Setup
-
-### 1. Pegar a chave grátis
-https://www.football-data.org/client/register
-
-### 2. Instalar Vercel CLI
 ```bash
-npm install -g vercel
+cd web
+npm install
+cp .env.example .env.local        # set VITE_API_BASE=https://<your-backend>.up.railway.app
+npm run dev                       # http://localhost:5173
+npm test                          # vitest
+npm run build                     # → dist/
 ```
 
-### 3. Deploy
-```bash
-cd usam-backend
-vercel login
-vercel link             # Cria novo projeto
-```
+You need the backend running and reachable at `VITE_API_BASE` (no trailing
+slash). The dev server doesn't proxy `/api/*` — it calls the absolute backend
+URL directly.
 
-### 4. Vercel KV (grátis)
-1. Abra o projeto em https://vercel.com
-2. Storage tab → Create Database → KV
-3. Nome: `usam-kv`
-4. Connect to project (env vars adicionadas automaticamente)
-
-### 5. Env vars
-```bash
-vercel env add FOOTBALL_DATA_API_KEY       # cola chave football-data.org
-vercel env add ADMIN_TOKEN                 # string aleatória 32 chars
-```
-
-Para cada um, selecione **Production, Preview, Development**.
-
-### 6. Deploy
-```bash
-vercel --prod
-```
-
-Anote a URL final.
-
-### 7. Atualizar o HTML
-No `usam-world-cup-2026.html`, início do `<script>`:
-```javascript
-const BACKEND_URL = 'https://SEU-PROJETO.vercel.app';
-const ADMIN_TOKEN_CLIENT = 'SUA-ADMIN-TOKEN';
-```
-
-Veja `CLAUDE.md` pra integração frontend completa.
-
----
-
-## 🔌 Endpoints
-
-### Públicos (read-only)
-- `GET /api/state` — Snapshot: matches, phases, standings, lastSync, rateLimit info
-- `GET /api/matches` — Só matches
-
-### Admin (header `x-admin-token`)
-- `GET/POST/DELETE /api/admin/players` — CRUD de jogadores
-- `GET/POST /api/admin/phases` — Atualizar fases
-- `GET/POST /api/admin/standings` — Atualizar classificações de grupo
-- `POST /api/admin/sync-now` — Forçar sync imediato
-
-### Cron (Vercel chama sozinho)
-- `GET /api/cron/sync-matches` — A cada 1 min
-
----
-
-## 📁 Estrutura
+## Project layout
 
 ```
-usam-backend/
-├── README.md              ← este arquivo
-├── CLAUDE.md              ← instruções pro Claude Code
-├── package.json
-├── vercel.json            ← config de cron + CORS
-├── lib/
-│   ├── kv.js              ← wrapper KV
-│   ├── football-data.js   ← cliente football-data.org + rate limit
-│   └── team-aliases.js    ← matching robusto de nomes
-└── api/
-    ├── state.js           ← snapshot completo
-    ├── matches.js         ← só matches
-    ├── admin/
-    │   ├── players.js
-    │   ├── phases.js
-    │   ├── standings.js
-    │   └── sync-now.js
-    └── cron/
-        └── sync-matches.js  (1× por minuto)
+web/
+├── public/
+│   └── sw.js                 # service worker (web-push)
+├── src/
+│   ├── main.jsx              # entry
+│   ├── App.jsx               # tabs + routing
+│   ├── auth/                 # AuthContext, PlayerAuthContext, AuthGate
+│   ├── views/                # JoinView, RankView, PredictView, ChatView, AdminPanel, ...
+│   ├── components/           # reusable UI bits
+│   ├── lib/                  # api(), push.js, helpers
+│   ├── i18n/                 # strings.js + LanguageContext
+│   └── theme/                # palette (`C` object) + global.css
+├── vercel.json               # SPA rewrite
+└── package.json
 ```
+
+## Screens
+
+- **Join** — phone signup (locks once submitted)
+- **Predict** — pick scorelines per phase; each pick is final once a match
+  kicks off
+- **Scoreboard** — leaderboard with exact-vs-result breakdown
+- **Teams / Matches / Live** — group standings, fixture list, live overlay
+- **Rules** — the scoring system
+- **Admin** (PIN-gated) — players CRUD, deadline, standings, phases, force sync,
+  manual score override
+
+## Scoring (mirror of the backend)
+
+Per match:
+- **+3** exact scoreline
+- **+1** correct result (winner, or draw when both predicted and actual are draws)
+- **0** otherwise
+
+Plus a per-group bonus, only once all matches in the group finish:
+- **+2** 1st AND 2nd correct, right order
+- **+1** 1st AND 2nd correct, wrong order
+
+Submitted picks can never be edited — the backend stores them insert-only.
+
+## Deploy
+
+Vercel auto-deploys on merge to `main`. In the Vercel project settings, set:
+
+- `VITE_API_BASE=https://<backend>.up.railway.app` (no trailing slash) — for
+  every environment (Production, Preview, Development).
+
+`vercel.json` rewrites every path to `/index.html` so React Router (the
+in-component view state) handles deep links and `/tv` mode.
+
+## Archive
+
+`archive/usam-world-cup-2026.html` is a standalone vanilla-JS prototype kept
+for reference only. It does NOT talk to this backend and is no longer part of
+the product. Don't edit it.

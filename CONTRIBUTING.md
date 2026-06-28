@@ -1,75 +1,76 @@
 # Contributing
 
-Thanks for your interest in contributing! This is a small personal project but improvements are welcome.
+Small personal project, but improvements are welcome.
 
-## Ways to contribute
+## Local dev
 
-- 🐛 **Report bugs** via Issues
-- 💡 **Suggest features** via Issues
-- 🔧 **Submit fixes** via Pull Requests
-- 🌍 **Add translations** (currently EN/ES — Portuguese, French, etc. welcome)
-- 📚 **Improve docs**
-
-## Local development
-
-### Frontend only
 ```bash
-# Just open the HTML file in a browser
-open frontend/usam-world-cup-2026.html
-```
-
-For live reload during development, use any simple static server:
-```bash
-cd frontend
-python3 -m http.server 8000
-# Open http://localhost:8000/usam-world-cup-2026.html
-```
-
-### Backend
-```bash
-cd backend
+cd web
 npm install
-vercel dev    # Runs the cron + endpoints locally
+cp .env.example .env.local        # set VITE_API_BASE=https://<your-backend>.up.railway.app
+npm run dev                       # http://localhost:5173
+npm test                          # vitest
+npm run build                     # → dist/ (must succeed before merging)
 ```
 
-You'll need `.env.local` with:
-```
-FOOTBALL_DATA_API_KEY=your_key_here
-ADMIN_TOKEN=your_admin_token
-KV_REST_API_URL=...   # from Vercel KV dashboard
-KV_REST_API_TOKEN=... # from Vercel KV dashboard
-```
+You need the companion backend reachable at `VITE_API_BASE`. If you're working
+on UI only, point at the production backend (read-only browsing is harmless);
+for anything that mutates, run a local backend (see the backend repo's README).
 
 ## Code style
 
-- **HTML/JS/CSS**: 2-space indentation, no trailing whitespace
-- **No build step**: keep the frontend as a single file
-- **Comments in English** in code, doc strings can be bilingual
-- **Test your changes** before submitting — manual testing on mobile + desktop
+- React function components + hooks (no classes).
+- Color palette lives in `web/src/theme/palette.js` — `C` object. Don't
+  hard-code hex outside it.
+- API calls go through `web/src/lib/api.js` (`api(path, { method, body, auth })`
+  — it adds the bearer token + timeout).
+- Use `import.meta.env.VITE_API_BASE` for the backend URL — never relative
+  `/api/...` paths (Vercel's SPA rewrite would eat them).
+- Strings go through `LanguageContext` / `useLang()`. New copy lands in both
+  `pt` and `en` blocks of `web/src/i18n/strings.js`.
 
-## Submitting a PR
+## Tests
 
-1. Fork the repo
-2. Create a branch: `git checkout -b fix/your-fix-name`
-3. Make your changes
-4. Test locally
-5. Commit with a clear message: `git commit -m "fix: dropdown options not visible on Windows Chrome"`
-6. Push and open a PR
+`vitest` runs against the React tree (`@testing-library/react`-style is OK but
+not required). At minimum, every change should pass:
 
-## Adding a new language
-
-In `usam-world-cup-2026.html`, find the `I18N` object:
-```javascript
-const I18N = {
-  en: { ... },
-  es: { ... },
-  // Add your language here:
-  pt: { joinTitle: '...', ... }
-};
+```bash
+npm test
+npm run build
 ```
 
-Then update the language switcher buttons in the header.
+CI runs both on Node 18 + 20 per PR. Don't merge with red CI.
 
-## Questions?
+## Branch / commit / PR conventions
 
-Open an Issue and tag it `question`.
+- Branch: `claude/<short-slug>` for Claude work; `<user>/<slug>` for humans.
+- Commit prefix: `feat(scope):` / `fix(scope):` / `ui(scope):` / `docs(scope):`.
+- PR title mirrors the lead commit subject.
+- PR body: 2-3 bullets ("what + why") + a brief test plan.
+- Squash-merge (no merge commits in `main`).
+
+## What NOT to touch without asking
+
+- `archive/usam-world-cup-2026.html` — deprecated standalone prototype, kept
+  for reference only.
+- The companion backend's migrations (in the backend repo) — append-only by
+  policy.
+
+## Adding a language
+
+1. Add a new block to `web/src/i18n/strings.js`:
+   ```js
+   export const I18N = {
+     en: { ... },
+     pt: { ... },
+     es: { /* your translations */ },
+   };
+   ```
+2. Add the language to the picker (look for `useLang` usages).
+3. Push notifications: the backend stores `lang` per subscription so you'll
+   want to add server-side templates for the new language too.
+
+## Questions / bugs
+
+Open an Issue on GitHub. For security issues, email the maintainer rather than
+filing publicly.
