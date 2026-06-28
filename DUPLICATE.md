@@ -6,7 +6,7 @@ notifications. **No code changes are needed**: it's a fresh deploy of these two
 repos with its own database and its own secrets.
 
 > Architecture recap: **frontend** (this repo → Vercel) + **backend**
-> (`usam-fifa-world-cup-backend` → Railway + Postgres). The frontend reads the
+> (`Bolao-familia-backend` → Railway + Postgres). The frontend reads the
 > backend URL from `VITE_API_BASE`; the backend pulls live scores from
 > football-data.org and stores everything in Postgres.
 
@@ -14,7 +14,7 @@ repos with its own database and its own secrets.
 
 ## Step 1 — Copy both repos (2 min)
 
-For **each** repo (`usam-fifa-world-cup` and `usam-fifa-world-cup-backend`):
+For **each** repo (`Bolao-familia-frontend` and `Bolao-familia-backend`):
 
 - On GitHub, open the repo → **Use this template ▸ Create a new repository**
   (or **Fork**). Name them e.g. `copa-pool-2-frontend` / `copa-pool-2-backend`.
@@ -84,18 +84,18 @@ key from `/api/push/key` on the backend.
 ## Step 5 — ✅ Mirror mode (no second API token)
 
 Match data is identical across pools (same Cup), so the new pool doesn't need
-its own football-data token. Set **`MIRROR_SOURCE_URL`** to the USAM backend
-(e.g. `https://usam-fifa-world-cup-backend-production.up.railway.app`) and leave
+its own football-data token. Set **`MIRROR_SOURCE_URL`** to a source backend
+(e.g. `https://bolao-familia-backend-production.up.railway.app`) and leave
 `FOOTBALL_DATA_API_KEY` **unset**.
 
 In mirror mode the scheduler copies the source pool's public `/api/matches` and
 `/api/standings` into this pool's own database on the same adaptive cadence
-(~7s when a match is live). It uses **zero** football-data quota — only the USAM
-backend talks to the external API. Players, picks, leaderboard, the group bonus
-and notifications all stay independent per pool.
+(~7s when a match is live). It uses **zero** football-data quota — only the
+source backend talks to the external API. Players, picks, leaderboard, the
+group bonus and notifications all stay independent per pool.
 
 > Only consider a second football-data token if you want the new pool fully
-> standalone (not dependent on the USAM backend being up). To do that, set
+> standalone (not dependent on the source backend being up). To do that, set
 > `FOOTBALL_DATA_API_KEY` instead and leave `MIRROR_SOURCE_URL` unset. The free
 > tier is 10 req/min **per token**, so two pools must not share one token.
 

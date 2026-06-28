@@ -1,233 +1,169 @@
-# 🚀 Setup Guide
+# Setup Guide — Bolão Família
 
-Complete step-by-step guide to deploying USAM World Cup 2026 for your friend group.
+End-to-end deployment of the pool (frontend + backend). Plan ~30 minutes if
+this is your first time; ~5 minutes if you've already done it once.
 
-**Estimated time:** 15-20 minutes if you've never used Vercel; 5 minutes if you have.
-
----
-
-## 📋 What you'll need
-
-- A computer with Node.js installed ([download](https://nodejs.org))
-- A GitHub account ([signup](https://github.com/signup))
-- A Vercel account ([signup with GitHub](https://vercel.com/signup))
-- 5 minutes to register at [football-data.org](https://www.football-data.org/client/register) for a free API key
+> If you're just **duplicating** an existing pool, read `DUPLICATE.md` instead
+> — it skips half the steps.
 
 ---
 
-## Part 1: Get your API key (2 minutes)
+## What you'll need
 
-1. Go to https://www.football-data.org/client/register
-2. Sign up with your email
-3. Confirm via email
-4. Copy your API token from the dashboard
-
-Keep this token handy — you'll paste it in Vercel later.
-
----
-
-## Part 2: Fork & clone (3 minutes)
-
-### Option A: Fork on GitHub (recommended)
-1. Open https://github.com/YOUR-USERNAME/usam-world-cup-2026
-2. Click **Fork** (top right)
-3. Clone your fork:
-```bash
-git clone https://github.com/YOUR-USERNAME/usam-world-cup-2026.git
-cd usam-world-cup-2026
-```
-
-### Option B: Download ZIP
-1. Click **Code** → **Download ZIP**
-2. Extract to a folder
-3. Open a terminal in that folder
+- A computer with **Node.js 18+** ([download](https://nodejs.org))
+- A **GitHub** account
+- A **Vercel** account (for the frontend)
+- A **Railway** account (for the backend + Postgres)
+- (Optional) A **football-data.org** API key
+  ([free signup](https://www.football-data.org/client/register)) — without it,
+  the backend runs in ESPN-only mode (live scores, no official standings).
 
 ---
 
-## Part 3: Deploy backend to Vercel (5 minutes)
+## Part 1 — Deploy the backend (Railway)
 
-### 3.1 Install Vercel CLI
-```bash
-npm install -g vercel
-```
+The backend repo is
+[`Jaaasouza/-Bolao-familia-backend`](https://github.com/Jaaasouza/-Bolao-familia-backend).
 
-### 3.2 Login
-```bash
-vercel login
-```
-Follow the prompts (uses your browser).
+### 1.1 — Create the project
 
-### 3.3 Link the project
-```bash
-cd backend
-vercel link
-```
-- Choose "Create new project"
-- Project name: `usam-world-cup-2026` (or whatever you want)
-- Directory: `.`
-- Want to override the settings? **No**
+1. Open [railway.app](https://railway.app) → **New Project** → **Deploy from
+   GitHub repo** → pick the backend repo.
+2. Add a **Postgres** plugin to the project (Railway → **+ New** → **Database** →
+   **Add Postgres**).
 
-### 3.4 Add Vercel KV (the database)
+Railway will start a first build; it'll fail because env vars aren't set yet.
+That's expected.
 
-Go to https://vercel.com and open your project:
-1. Click the **Storage** tab
-2. **Create Database** → **KV**
-3. Name: `usam-kv`
-4. Click **Create**
-5. **Connect** to your project (when prompted, select "Production, Preview, Development")
+### 1.2 — Set environment variables
 
-Vercel automatically adds 4 environment variables for KV access.
+On the backend service (NOT the Postgres one), open **Variables** and add:
 
-### 3.5 Add your API keys
+| Variable | Value |
+|---|---|
+| `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` (reference syntax — Railway resolves it) |
+| `JWT_SECRET` | a random 32+ char string (`openssl rand -hex 32`) |
+| `ADMIN_PASSWORD` | the PIN/password for admin login |
+| `ALLOWED_ORIGINS` | comma-separated frontend origins, e.g. `https://your-pool.vercel.app` |
+| `FOOTBALL_DATA_API_KEY` | (optional) your football-data token |
+| `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` | (optional) for web-push (`npx web-push generate-vapid-keys`) |
+| `VAPID_CONTACT` | (optional) `mailto:you@example.com` — required by web-push spec |
+| `NODE_ENV` | `production` |
 
-In the terminal:
-```bash
-vercel env add FOOTBALL_DATA_API_KEY
-# Paste your football-data.org token
-# Select: Production, Preview, Development (use spacebar to toggle all)
+### 1.3 — Redeploy
 
-vercel env add ADMIN_TOKEN
-# Generate a random string. Run this in another terminal:
-#   openssl rand -hex 16
-# Or just type any 32+ character random string
-# Select: Production, Preview, Development
-```
+Trigger a new deploy. The start command runs migrations first
+(`node src/db/migrate.js && node src/index.js`); if migrations fail the deploy
+aborts and nothing crashes.
 
-### 3.6 Deploy
+### 1.4 — Smoke-test the backend
 
 ```bash
-vercel --prod
+curl https://<your-backend>.up.railway.app/health
+# → "ok"
 ```
 
-After ~30 seconds, you'll see:
-```
-✅ Production: https://usam-world-cup-2026-xyz.vercel.app
-```
-
-**Copy this URL** — you'll need it next.
+Note your backend URL — you'll paste it in step 2.2.
 
 ---
 
-## Part 4: Configure the frontend (2 minutes)
+## Part 2 — Deploy the frontend (Vercel)
 
-### 4.1 Open `frontend/usam-world-cup-2026.html` in a text editor
+This repo (`Jaaasouza/Bolao-familia-frontend`).
 
-### 4.2 Find these lines (near the top of the `<script>` block):
+### 2.1 — Import to Vercel
 
-```javascript
-const ADMIN_PASS = "2026";
-const BACKEND_URL = '';
-const ADMIN_TOKEN_CLIENT = '';
-```
+1. Open [vercel.com](https://vercel.com) → **Add New** → **Project** → import
+   the frontend repo.
+2. **Root Directory**: `web`
+3. **Framework Preset**: Vite (auto-detected)
+4. Build command: `npm run build` (default)
+5. Output directory: `dist` (default)
 
-### 4.3 Update them:
+Don't click Deploy yet — set env vars first.
 
-```javascript
-const ADMIN_PASS = "your-new-pin";   // change if you want
-const BACKEND_URL = 'https://usam-world-cup-2026-xyz.vercel.app';  // your Vercel URL
-const ADMIN_TOKEN_CLIENT = 'your-admin-token-from-step-3.5';
-```
+### 2.2 — Set environment variables
 
-### 4.4 Save the file
+On the Vercel project → **Settings** → **Environment Variables**:
 
----
+| Variable | Value | Environments |
+|---|---|---|
+| `VITE_API_BASE` | `https://<your-backend>.up.railway.app` (no trailing slash) | Production, Preview, Development |
 
-## Part 5: Test it (2 minutes)
+### 2.3 — Deploy
 
-### 5.1 Open the HTML file
+Click **Deploy**. After ~30s you'll have `https://<your-pool>.vercel.app`.
 
-Just double-click `usam-world-cup-2026.html` or drag it into a browser.
+### 2.4 — Wire CORS
 
-### 5.2 Verify backend connection
-
-1. Click **🔧 Admin** at the bottom
-2. Enter PIN (default: `2026`)
-3. Look at the "Live Data Sync" card — should show "✓ Last sync: ..." within 1-2 minutes
-
-If you see "⚠️ Connection error":
-- Double-check `BACKEND_URL` is correct
-- Open browser console (F12) and look for CORS/network errors
-
-### 5.3 Test a pick
-
-1. Go to **🎯 Join Pool**
-2. Enter test name + phone
-3. Pick 1st and 2nd for any group
-4. Submit
-5. Reload the page → data should persist
-
-✅ **Done!** Your pool is live.
+Back in Railway, update `ALLOWED_ORIGINS` to include your Vercel URL (and any
+custom domain). Trigger a redeploy.
 
 ---
 
-## Part 6: Share with your friends
+## Part 3 — Smoke-test end-to-end
 
-### Option A: Host the HTML on GitHub Pages (free)
+1. Open your Vercel URL.
+2. Sign up as a player (phone).
+3. Go to **Predict** → submit a few picks.
+4. Open **Admin** (PIN from `ADMIN_PASSWORD`) → confirm the player appears in
+   the list.
+5. Hit **Force sync** in the admin panel — matches should load from
+   football-data within seconds.
 
-1. In your repo, go to **Settings** → **Pages**
-2. Source: **Deploy from a branch** → **main** → **/frontend**
-3. Click **Save**
-4. Wait 1-2 minutes for deployment
-5. Share the URL: `https://YOUR-USERNAME.github.io/usam-world-cup-2026/usam-world-cup-2026.html`
+If matches don't appear:
 
-### Option B: Host on Netlify/Vercel as a static site
-
-Drag the `frontend/` folder into Netlify or use `vercel --prod` from that folder.
-
-### Option C: Just send the HTML file
-
-Email the HTML file to your friends. Works offline (mostly) but won't sync.
+- Check Railway logs for `[scheduler] sync …` lines.
+- Hit `https://<backend>/api/sync-status` — shows last sync result + error.
+- If you see `RATE_LIMITED`, the free tier (10 req/min) tripped — wait 60s.
 
 ---
 
-## 🔄 Updating the app
+## Common gotchas
 
-When you push changes to GitHub:
-- **Backend**: Re-run `vercel --prod` from the `backend/` folder
-- **Frontend**: If using GitHub Pages, it auto-deploys on push. Otherwise re-upload.
+### "Failed to fetch" in the browser
 
----
+- `VITE_API_BASE` is wrong, has a trailing slash, or points at the wrong URL.
+- `ALLOWED_ORIGINS` on Railway doesn't include the Vercel origin.
 
-## ❓ Troubleshooting
+### Admin login returns 401
 
-### "vercel: command not found"
-```bash
-npm install -g vercel
-```
+- `ADMIN_PASSWORD` on Railway doesn't match what you're typing.
+- `JWT_SECRET` was changed and old tokens are invalidated — log out + back in.
 
-### "Cannot find module @vercel/kv"
-```bash
-cd backend
-npm install
-vercel --prod
-```
+### Matches table is empty after deploy
 
-### Cron not running
-1. Check **Logs** tab in your Vercel project dashboard
-2. Crons only run on deployed (not preview) deployments
-3. Make sure you deployed with `--prod` flag
+- The football-data WC competition may not be live yet. Use the admin
+  **Standings** + **Phases** editors to seed manually, or set placeholder
+  scores via the per-match override (`POST /api/matches/:id/score`).
 
-### CORS errors in browser
-Already handled in `vercel.json`. If you still see them:
-1. Force-refresh: Ctrl+Shift+R (or Cmd+Shift+R on Mac)
-2. Verify your Vercel URL doesn't have a typo
+### Push notifications don't fire
 
-### 401 errors on admin endpoints
-The `ADMIN_TOKEN` in your HTML must EXACTLY match the one in Vercel env vars.
-
-### "WC may not be in free tier" 403 error
-The football-data.org free tier may not include all competitions. Workaround: use the manual score entry in Admin until games start, or upgrade the API plan ($12/month).
-
-### Quota warning showing red
-The free tier is 10 reqs/minute. We use 1/min. If you see a warning:
-- Check if multiple people are pasting their own API keys (only the cron should call)
-- Click "Disable Auto-Sync" in Admin
+- VAPID keys not set, OR
+- `serviceWorker.ready` never resolves (HTTPS-only — won't work on `http://`).
 
 ---
 
-## 🆘 Still stuck?
+## Updating the app
 
-Open an Issue on GitHub with:
-- What you tried
-- What error you see (screenshot helps!)
-- Your Vercel deployment URL (don't share API keys or tokens!)
+Push to `main` in either repo:
+
+- **Backend**: Railway auto-deploys.
+- **Frontend**: Vercel auto-deploys.
+
+Migrations are append-only; new ones run on next backend boot.
+
+## Updating environment variables
+
+- **Railway**: change the variable, then redeploy the backend service.
+- **Vercel**: change the variable, then redeploy the frontend (or push a new
+  commit).
+
+---
+
+## Further reading
+
+- `CLAUDE.md` — standing directives + repo conventions
+- `DUPLICATE.md` — fast path for cloning the pool for another group of friends
+- `API.md` — backend API reference
+- `SCORING.md` — point system in detail
