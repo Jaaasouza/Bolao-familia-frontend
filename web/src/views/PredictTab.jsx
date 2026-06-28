@@ -10,7 +10,7 @@ import PhoneLogin from '../components/PhoneLogin.jsx';
 import PredictView from './PredictView.jsx';
 import { useLang } from '../i18n/LanguageContext.jsx';
 
-export default function PredictTab({ matches, standings = {} }) {
+export default function PredictTab({ matches, standings = {}, onPicksChanged }) {
   const { t } = useLang();
   const [token, setToken] = useState(() => getPlayerToken());
   const [player, setPlayer] = useState(() => getPlayerInfo());
@@ -63,8 +63,11 @@ export default function PredictTab({ matches, standings = {} }) {
   const onSubmit = useCallback(async (phase, picks) => {
     const res = await API.submitPhase(phase, picks, token);
     await loadPicks(token);
+    // Let the app re-evaluate the landing tab (e.g. return to Dashboard once the
+    // last pending pick is in).
+    if (onPicksChanged) onPicksChanged();
     return res;
-  }, [token, loadPicks]);
+  }, [token, loadPicks, onPicksChanged]);
 
   const logout = () => {
     setPlayerToken(null); setPlayerInfo(null); setToken(null); setPlayer(null); setMyPicks({});
