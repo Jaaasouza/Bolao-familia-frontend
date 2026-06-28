@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { C } from './theme/palette.js';
 import { useAppData } from './data/useAppData.js';
+import { usePendingPredictions } from './data/usePendingPredictions.js';
 import { useAuth } from './auth/AuthContext.jsx';
 import { usePlayerAuth } from './auth/PlayerAuthContext.jsx';
 import { useLang } from './i18n/LanguageContext.jsx';
@@ -89,11 +90,32 @@ function AdminButton() {
 export default function App() {
   const { isAdmin } = useAuth();
   const { t } = useLang();
-  // Brand-new registrations land on Predict (make their picks first); returning
-  // players land on their Dashboard.
-  const { justRegistered } = usePlayerAuth();
-  const [tab, setTab] = useState(() => (justRegistered ? 'predict' : 'dashboard'));
+  const { justRegistered, token } = usePlayerAuth();
+  const [tab, setTab] = useState('dashboard');
   const { matches, phases, standings, players, config, apiGroups, scorers, standingsTable, loading, error, refresh } = useAppData();
+
+  // Landing tab: open on Predict whenever the player still has open matches to
+  // pick (at app open, brand-new registration, or after a new phase opens), so
+  // nobody forgets to predict. Once every open match is in, fall back to the
+  // Dashboard — including the moment they submit their last pending pick.
+  const { hasPending, loaded: pendingLoaded, refresh: refreshPending } = usePendingPredictions(token, matches);
+  const landedRef = useRef(false);
+  const prevPending = useRef(false);
+  useEffect(() => {
+    if (loading || !pendingLoaded) return;
+    if (!landedRef.current) {
+      landedRef.current = true;
+      prevPending.current = hasPending;
+      if (hasPending || justRegistered) setTab('predict');
+      return;
+    }
+    // Pending just cleared (last pick submitted / phase fully predicted) → if the
+    // player is sitting on Predict, send them back to the Dashboard.
+    if (prevPending.current && !hasPending) {
+      setTab((cur) => (cur === 'predict' ? 'dashboard' : cur));
+    }
+    prevPending.current = hasPending;
+  }, [loading, pendingLoaded, hasPending, justRegistered]);
 
   // Admin tab is admin-only; everyone gets Live (the stadium / pitch view).
   const ADMIN_ONLY = new Set(['admin']);
@@ -113,7 +135,7 @@ export default function App() {
       {tab === 'rank' && (
         <RankView players={players} phases={phases} standings={standings} matches={matches} scorers={scorers} />
       )}
-      {tab === 'predict' && <PredictTab matches={matches} standings={standings} />}
+      {tab === 'predict' && <PredictTab matches={matches} standings={standings} onPicksChanged={refreshPending} />}
       {tab === 'scoreboard' && <ScoreboardTab />}
       {tab === 'dashboard' && <DashboardTab matches={matches} standings={standings} />}
       {tab === 'matches' && <MatchesView matches={matches} />}
